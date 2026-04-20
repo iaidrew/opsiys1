@@ -29,7 +29,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { signInWithGoogle, logout, auth, submitLead, updateProfile, getUserProfile } from "./lib/firebase.ts";
+import { signInWithGoogle, logout, auth, submitLead, updateProfile, getUserProfile, subscribeToUserLeads } from "./lib/firebase.ts";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 /**
@@ -60,7 +60,7 @@ const staggerContainer = {
 const Logo = () => (
   <div className="flex items-center group cursor-pointer h-12">
     <img 
-      src="/assets/opsiyslogo.png" alt="OPSIYS"
+      src="publi/assets/opsiyslogo.png" alt="OPSIYS"
       className="h-full w-auto block transition-opacity hover:opacity-80" 
       
     />
@@ -209,6 +209,7 @@ const AuthPortal = () => {
   const [showSettings, setShowSettings] = React.useState(false);
   const [showHistory, setShowHistory] = React.useState(false);
   const [profile, setProfile] = React.useState<any>(null);
+  const [leads, setLeads] = React.useState<any[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
 
   React.useEffect(() => {
