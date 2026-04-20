@@ -1039,15 +1039,18 @@ const Contact = () => {
     return () => unsubscribe();
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus('loading');
+  // Inside the Contact component...
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setStatus('loading');
 
-    try {
-      await submitLead({
-        ...formData,
-        userId: user?.uid
-      });
+  try {
+    // THIS IS THE LINKING STEP:
+    await submitLead({
+      ...formData,        // This sends the name, email, message, etc.
+      userId: user?.uid   // This attaches the logged-in User ID to the project!
+    });
+    
       
       setStatus('success');
       setFeedback("Strategic inquiry captured. Our leads architect will review your technical requirements and contact you within 6 business hours.");
