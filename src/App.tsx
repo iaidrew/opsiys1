@@ -1039,6 +1039,14 @@ const Contact = () => {
     return () => unsubscribe();
   }, []);
 
+
+  React.useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser); // This stores the logged-in user in the component state
+    });
+    return () => unsubscribe();
+  }, []);
+
   // Inside the Contact component...
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
