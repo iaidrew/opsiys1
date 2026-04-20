@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() { return request.auth != null; }
+    function isVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function isAdmin() { return isVerified() && request.auth.token.email == "adityaofficial9918@gmail.com"; }
+    function isValidId(id) { return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); }
+    function incoming() { return request.resource.data; }
+    
+    // --- Validation Blueprints ---
+    function isValidLead(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 200 &&
+             data.email is string && data.email.size() > 5 && data.email.size() <= 255 &&
+             data.company is string && data.company.size() > 0 && data.company.size() <= 200 &&
+             data.phone is string && data.phone.size() > 0 && data.phone.size() <= 50 &&
+             data.projectType is string && data.projectType.size() > 0 && data.projectType.size() <= 100 &&
+             data.urgency is string && data.urgency.size() > 0 && data.urgency.size() <= 100 &&
+             data.budget is string && data.budget.size() > 0 && data.budget.size() <= 100 &&
+             data.message is string && data.message.size() > 0 && data.message.size() <= 2000 &&
+             data.status in ['new', 'contacted', 'qualified', 'closed'] &&
+             data.createdAt == request.time;
+    }
+
+    function isValidProfile(data) {
+      return (data.displayName is string && data.displayName.size() <= 100) &&
+             (!('company' in data) || (data.company is string && data.company.size() <= 200)) &&
+             (!('role' in data) || (data.role is string && data.role.size() <= 100)) &&
+             (!('industry' in data) || (data.industry is string && data.industry.size() <= 100)) &&
+             data.updatedAt == request.time;
+    }
+
+    // --- Collections ---
+    match /leads/{leadId} {
+      // 1. Creation: Anyone (authenticated or not) can submit a lead to your agency
+      allow create: if isValidId(leadId) && 
+                      isValidLead(incoming()) &&
+                      incoming().keys().hasAll(['name', 'email', 'company', 'phone', 'projectType', 'urgency', 'budget', 'message', 'status', 'createdAt']) &&
+                      incoming().keys().size() >= 10;
+
+      // 2. Reading: Only YOU (the admin email) can read the leads
+      allow get, list: if isAdmin();
+
+      // 3. Updating: Only YOU can update lead status
+      allow update: if isAdmin() && 
+                      incoming().createdAt == resource.data.createdAt; // Prevent creation date tampering
+
+      // 4. Deleting: Only YOU can delete junk leads
+      allow delete: if isAdmin();
+    }
+
+    // User Profile Management
+    match /profiles/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+      allow create, update: if isValidId(userId) && isSignedIn() && request.auth.uid == userId && isValidProfile(incoming());
+    }
+
+    // Identity Isolation for Users
+    match /users/{userId} {
+      allow read, write: if isVerified() && request.auth.uid == userId;
+    }
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "Lead": {
+      "title": "Agency Lead",
+      "description": "A booking request from a potential client.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Client name" },
+        "email": { "type": "string", "description": "Email address" },
+        "company": { "type": "string", "description": "Company name" },
+        "budget": { "type": "string", "description": "Project budget" },
+        "phone": { "type": "string", "description": "Contact phone number" },
+        "projectType": { "type": "string", "description": "Category of automation needed" },
+        "urgency": { "type": "string", "description": "Timeline requirements" },
+        "message": { "type": "string", "description": "Automation details" },
+        "status": { "type": "string", "enum": ["new", "contacted", "qualified", "closed"], "description": "Lead status" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "Submission time" },
+        "userId": { "type": "string", "description": "Optional authenticated user ID" }
+      },
+      "required": ["name", "email", "company", "budget", "message", "status", "createdAt"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Extended information for authenticated users.",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string", "description": "Modified display name" },
+        "company": { "type": "string", "description": "User's company" },
+        "role": { "type": "string", "description": "User's role in the company" },
+        "industry": { "type": "string", "description": "Industry of the business" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last update time" }
+      }
+    }
+  },
+  "firestore": {
+    "/leads/{leadId}": {
+      "schema": "Lead",
+      "description": "Collection of business inquiries."
+    },
+    "/profiles/{userId}": {
+      "schema": "UserProfile",
+      "description": "User specific settings and preferences."
+    }
+  }
+}
