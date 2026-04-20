@@ -13,7 +13,6 @@ import {
   Mail,
   User,
   Building2,
-  Wallet,
   Twitter,
   Github,
   Linkedin,
@@ -45,7 +44,9 @@ const fadeIn = {
   transition: { duration: 0.5, ease: "easeOut" }
 };
 
+// FIX 1: Added missing `initial` key so `initial="initial"` on motion.div works correctly
 const staggerContainer = {
+  initial: {},
   animate: {
     transition: {
       staggerChildren: 0.1
@@ -53,16 +54,14 @@ const staggerContainer = {
   }
 };
 
-// --- Components ---
-
 // --- Shared Components ---
 
 const Logo = () => (
   <div className="flex items-center group cursor-pointer h-12">
     <img 
-      src="publi/assets/opsiyslogo.png" alt="OPSIYS"
+      src="publi/assets/opsiyslogo.png" 
+      alt="OPSIYS"
       className="h-full w-auto block transition-opacity hover:opacity-80" 
-      
     />
   </div>
 );
@@ -212,17 +211,38 @@ const AuthPortal = () => {
   const [leads, setLeads] = React.useState<any[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
 
+  // FIX 2: Combined auth listener + subscribeToUserLeads into one effect
+  // so leads are actually populated when user logs in
   React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+    let unsubscribeLeads: (() => void) | null = null;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
+
+      // Tear down any previous leads subscription
+      if (unsubscribeLeads) {
+        unsubscribeLeads();
+        unsubscribeLeads = null;
+      }
+
       if (currentUser) {
         const p = await getUserProfile(currentUser.uid);
         setProfile(p || { displayName: currentUser.displayName || "", company: "", role: "", industry: "" });
+
+        // Subscribe to this user's leads in real-time
+        unsubscribeLeads = subscribeToUserLeads(currentUser.uid, (data: any[]) => {
+          setLeads(data);
+        });
       } else {
         setProfile(null);
+        setLeads([]);
       }
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeLeads) unsubscribeLeads();
+    };
   }, []);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -441,24 +461,23 @@ const AuthPortal = () => {
               <ScrollArea className="h-[400px] pr-4">
                 <div className="space-y-6">
                   {leads.length > 0 ? (
-                    leads.map((lead, i) => (
-                    <div key={lead.id} className="flex justify-between p-4 border border-zinc-100 bg-zinc-50/50">
-                      <div>
-                        <p className="text-[10px] text-zinc-400 font-bold uppercase">
-                          {/* This converts the Firebase timestamp to a readable date */}{lead.createdAt?.toDate?.().toLocaleDateString() || "Just now"}
-            </p>
-            <h4 className="font-extrabold">{lead.projectType}</h4>
-            <p className="text-xs text-zinc-500">{lead.message}</p>
-          </div>
-          {/* Badge shows the real-time status from your database */}
-          <Badge className="bg-emerald-500">{lead.status}</Badge>
-        </div>
-      ))
-    ) : (
-      <p className="text-center py-10">No projects found yet.</p>
-    )}
-  </div>
-</ScrollArea>
+                    leads.map((lead) => (
+                      <div key={lead.id} className="flex justify-between p-4 border border-zinc-100 bg-zinc-50/50">
+                        <div>
+                          <p className="text-[10px] text-zinc-400 font-bold uppercase">
+                            {lead.createdAt?.toDate?.().toLocaleDateString() || "Just now"}
+                          </p>
+                          <h4 className="font-extrabold">{lead.projectType}</h4>
+                          <p className="text-xs text-zinc-500">{lead.message}</p>
+                        </div>
+                        <Badge className="bg-emerald-500">{lead.status}</Badge>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center py-10">No projects found yet.</p>
+                  )}
+                </div>
+              </ScrollArea>
               
               <div className="mt-8 flex justify-end">
                 <Button onClick={() => setShowHistory(false)} className="bg-black text-white rounded-none px-12 font-bold text-[10px] uppercase tracking-[0.2em]">
@@ -523,7 +542,7 @@ const Hero = () => {
                     {words[index]}
                   </motion.span>
                 </AnimatePresence>
-                <span className="opacity-0">{words[0]}</span> {/* Spacer */}
+                <span className="opacity-0">{words[0]}</span>
               </span>
               <br/>
               that run your business
@@ -551,14 +570,8 @@ const Hero = () => {
           className="relative mt-8 lg:mt-0 max-w-xl mx-auto lg:max-w-none w-full"
         >
           <motion.div 
-            animate={{ 
-              y: [0, -10, 0],
-            }}
-            transition={{ 
-              duration: 6, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             className="relative z-10 bg-white border border-border shadow-2xl rounded-xl p-6 sm:p-10 overflow-hidden transform-gpu"
           >
             <div className="flex items-center justify-between mb-8 border-b border-border pb-6">
@@ -579,22 +592,24 @@ const Hero = () => {
             
             <div className="space-y-6">
               {[
-                { label: "AI Lead Enrichment", status: "Active", width: "w-full" },
-                { label: "WhatsApp CRM Sync", status: "Processing", width: "w-2/3", color: "bg-accent" },
-                { label: "Workflow Optimization", status: "Complete", width: "w-5/6" },
-                { label: "Internal Agent Bot", status: "Active", width: "w-3/4" }
+                { label: "AI Lead Enrichment", status: "Active", pct: "100%", color: "bg-black" },
+                { label: "WhatsApp CRM Sync", status: "Processing", pct: "66%", color: "bg-accent" },
+                { label: "Workflow Optimization", status: "Complete", pct: "83%", color: "bg-black" },
+                { label: "Internal Agent Bot", status: "Active", pct: "75%", color: "bg-black" }
               ].map((item, idx) => (
                 <div key={idx} className="space-y-3">
                   <div className="flex justify-between text-[13px] font-bold">
                     <span>{item.label}</span>
-                    <span className={cn(idx === 1 ? "text-accent" : "text-black", "uppercase tracking-tighter")}>{item.status}</span>
+                    <span className={cn(item.color === "bg-accent" ? "text-accent" : "text-black", "uppercase tracking-tighter")}>
+                      {item.status}
+                    </span>
                   </div>
                   <div className="h-2.5 bg-secondary w-full rounded-full overflow-hidden border border-black/5">
                     <motion.div 
                       initial={{ width: 0 }}
-                      animate={{ width: item.width.split('-')[1] === 'full' ? '100%' : item.width.split('-')[1] === '2/3' ? '66%' : item.width.split('-')[1] === '5/6' ? '83%' : '75%' }}
+                      animate={{ width: item.pct }}
                       transition={{ duration: 1.5, delay: 0.5 + idx * 0.2 }}
-                      className={cn("h-full", item.color ?? "bg-black")}
+                      className={cn("h-full", item.color)}
                     />
                   </div>
                 </div>
@@ -617,7 +632,6 @@ const Hero = () => {
             </motion.div>
           </motion.div>
           
-          {/* Subtle Background Elements */}
           <div className="absolute -top-10 -right-10 w-64 h-64 bg-accent/10 rounded-full blur-3xl -z-0" />
           <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-black/5 rounded-full blur-2xl -z-0" />
         </motion.div>
@@ -643,11 +657,7 @@ const Trust = () => {
       <div className="flex overflow-hidden">
         <motion.div 
           animate={{ x: [0, -1000] }}
-          transition={{ 
-            duration: 30, 
-            repeat: Infinity, 
-            ease: "linear" 
-          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
           className="flex gap-16 items-center whitespace-nowrap"
         >
           {[...logos, ...logos].map((logo, idx) => (
@@ -719,9 +729,7 @@ const Features = () => {
               </div>
               <div className="space-y-3">
                 <h3 className="text-xl font-bold">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm">
-                  {item.desc}
-                </p>
+                <p className="text-muted-foreground leading-relaxed text-sm">{item.desc}</p>
               </div>
             </motion.div>
           ))}
@@ -757,7 +765,6 @@ const HowItWorks = () => {
 
   return (
     <section id="process" className="py-24 px-6 bg-[#0B0B0B] text-white overflow-hidden relative">
-      {/* Subtle Pattern Background */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       
       <div className="max-w-7xl mx-auto space-y-20 relative z-10">
@@ -800,9 +807,7 @@ const HowItWorks = () => {
               </div>
               <div className="space-y-3">
                 <h3 className="text-xl font-bold group-hover:text-accent transition-colors duration-300">{step.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">
-                  {step.desc}
-                </p>
+                <p className="text-zinc-400 text-sm leading-relaxed">{step.desc}</p>
               </div>
             </motion.div>
           ))}
@@ -811,7 +816,6 @@ const HowItWorks = () => {
     </section>
   );
 };
-
 
 const ToolDiscovery = () => {
   const [user, setUser] = React.useState<FirebaseUser | null>(null);
@@ -826,29 +830,24 @@ const ToolDiscovery = () => {
     { name: "FlowGenie", cat: "Operations", use: "Autonomous revenue operations and workflow orchestration.", status: "Agency", highlight: true, url: "#" },
     { name: "SalesBridge", cat: "Sales", use: "Lead-to-deal pipeline orchestration with AI nurturing.", status: "Agency", highlight: true, url: "#" },
     { name: "DeepEnrich", cat: "Data", use: "Precision lead data enrichment utilizing neural scrapers.", status: "Agency", highlight: true, url: "#" },
-    
-    // Large Language Models
+    // LLMs
     { name: "GPT-4o", cat: "Intelligence", use: "Multi-modal foundation model for complex reasoning and logic.", status: "External", url: "https://chatgpt.com" },
     { name: "Claude 3.5 Sonnet", cat: "Intelligence", use: "High-accuracy LLM focused on coding and creative writing.", status: "External", url: "https://claude.ai" },
     { name: "Gemini 1.5 Pro", cat: "Intelligence", use: "Massive context window AI for enterprise-scale data analysis.", status: "External", url: "https://gemini.google.com" },
-    
     // Productivity & Creative
     { name: "Midjourney v6", cat: "Creative", use: "State-of-the-art photorealistic image generation workflows.", status: "External", url: "https://midjourney.com" },
     { name: "Jasper", cat: "Marketing", use: "Enterprise-grade content generation for scaling brand voice.", status: "External", url: "https://jasper.ai" },
     { name: "Canva Magic", cat: "Creative", use: "AI-powered design suite for instant visual asset creation.", status: "External", url: "https://canva.com" },
     { name: "Notion AI", cat: "Productivity", use: "Integrated workspace intelligence for docs and project management.", status: "External", url: "https://notion.ai" },
-    
     // Agents & Automation
     { name: "Zapier Central", cat: "Operations", use: "Autonomous agents that connect with 6000+ business apps.", status: "External", url: "https://zapier.com" },
     { name: "AutoGPT", cat: "Agents", use: "Semi-autonomous agent framework for multi-step task completion.", status: "OpenSource", url: "https://github.com/Significant-Gravitas/AutoGPT" },
     { name: "Make", cat: "Operations", use: "Advanced visual automation platform for complex integrations.", status: "External", url: "https://make.com" },
-    
     // Search & Data
     { name: "Perplexity", cat: "Search", use: "Real-time answer engine with cited sources and logic checks.", status: "External", url: "https://perplexity.ai" },
     { name: "Tableau AI", cat: "Data", use: "Predictive analytics and automated data storytelling for ROI.", status: "External", url: "https://tableau.com" },
     { name: "Copy.ai", cat: "Marketing", use: "GTM (Go-to-Market) automation platform for sales teams.", status: "External", url: "https://copy.ai" },
-    
-    // Coding & Development
+    // Coding
     { name: "Cursor", cat: "Development", use: "AI-native IDE that understands entire codebases natively.", status: "External", url: "https://cursor.com" },
     { name: "GitHub Copilot", cat: "Development", use: "The world's most widely adopted AI pair programmer.", status: "External", url: "https://github.com/features/copilot" }
   ];
@@ -977,9 +976,7 @@ const ToolDiscovery = () => {
                           </div>
                           <div className="space-y-2">
                             <h3 className="text-lg font-extrabold group-hover:text-accent transition-colors">{tool.name}</h3>
-                            <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">
-                              {tool.use}
-                            </p>
+                            <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">{tool.use}</p>
                           </div>
                         </div>
                         <div className="mt-8 pt-4 border-t border-zinc-50 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest group-hover:text-accent transition-colors">
@@ -1025,6 +1022,7 @@ const Contact = () => {
   const [feedback, setFeedback] = React.useState("");
   const [user, setUser] = React.useState<FirebaseUser | null>(null);
 
+  // FIX 3: Removed the duplicate onAuthStateChanged useEffect — only one subscription needed
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -1039,26 +1037,15 @@ const Contact = () => {
     return () => unsubscribe();
   }, []);
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
 
-  React.useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser); // This stores the logged-in user in the component state
-    });
-    return () => unsubscribe();
-  }, []);
-
-  // Inside the Contact component...
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setStatus('loading');
-
-  try {
-    // THIS IS THE LINKING STEP:
-    await submitLead({
-      ...formData,        // This sends the name, email, message, etc.
-      userId: user?.uid   // This attaches the logged-in User ID to the project!
-    });
-    
+    try {
+      await submitLead({
+        ...formData,
+        userId: user?.uid
+      });
       
       setStatus('success');
       setFeedback("Strategic inquiry captured. Our leads architect will review your technical requirements and contact you within 6 business hours.");
@@ -1088,7 +1075,6 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   return (
     <section id="contact" className="py-32 px-6 bg-white relative overflow-hidden">
-      {/* Background Decor */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-zinc-50/50 -z-0" />
       
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-20 relative z-10">
@@ -1187,7 +1173,10 @@ const handleSubmit = async (e: React.FormEvent) => {
             )}
           </AnimatePresence>
 
-          <form className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-500", status === 'success' && "opacity-0 invisible scale-95")} onSubmit={handleSubmit}>
+          <form 
+            className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-500", status === 'success' && "opacity-0 invisible scale-95")} 
+            onSubmit={handleSubmit}
+          >
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Contact Name</label>
               <Input id="name" value={formData.name} onChange={handleChange} required placeholder="Lead Contact" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
@@ -1213,7 +1202,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               <select 
                 id="projectType" 
                 value={formData.projectType} 
-                onChange={handleChange as any}
+                onChange={handleChange}
                 className="w-full rounded-xl h-14 border border-zinc-100 bg-zinc-50/30 focus:outline-none focus:border-black/20 px-5 font-bold text-sm appearance-none cursor-pointer"
               >
                 {projectTypes.map(t => <option key={t} value={t}>{t}</option>)}
@@ -1225,7 +1214,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               <select 
                 id="urgency" 
                 value={formData.urgency} 
-                onChange={handleChange as any}
+                onChange={handleChange}
                 className="w-full rounded-xl h-14 border border-zinc-100 bg-zinc-50/30 focus:outline-none focus:border-black/20 px-5 font-bold text-sm appearance-none cursor-pointer"
               >
                 {urgencyLevels.map(u => <option key={u} value={u}>{u}</option>)}
@@ -1250,7 +1239,9 @@ const handleSubmit = async (e: React.FormEvent) => {
             </div>
             
             <div className="md:col-span-2 pt-4">
-              {status === 'error' && <p className="text-[11px] text-red-500 font-bold mb-4 bg-red-50 p-3 rounded-lg border border-red-100">{feedback}</p>}
+              {status === 'error' && (
+                <p className="text-[11px] text-red-500 font-bold mb-4 bg-red-50 p-3 rounded-lg border border-red-100">{feedback}</p>
+              )}
               <Button 
                 type="submit" 
                 disabled={status === 'loading'} 
@@ -1277,33 +1268,34 @@ const handleSubmit = async (e: React.FormEvent) => {
 
 const Footer = () => {
   return (
+    // FIX 4: Changed hover:text-black → hover:text-white for social icons on dark background
     <footer className="py-16 md:py-20 px-4 md:px-6 border-t border-zinc-800 bg-[#0B0B0B] text-zinc-400">
       <div className="max-w-7xl mx-auto space-y-12 md:space-y-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-12">
           <div className="col-span-1 md:col-span-2 space-y-6">
             <Logo />
-            <p className="text-muted-foreground text-sm leading-relaxed max-w-sm">
+            <p className="text-zinc-500 text-sm leading-relaxed max-w-sm">
               The premier AI automation agency for high-growth businesses. Building systems that scale while you sleep.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="text-muted-foreground hover:text-black transition-colors"><Twitter size={20} /></a>
-              <a href="#" className="text-muted-foreground hover:text-black transition-colors"><Github size={20} /></a>
-              <a href="#" className="text-muted-foreground hover:text-black transition-colors"><Linkedin size={20} /></a>
+              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Twitter size={20} /></a>
+              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Github size={20} /></a>
+              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Linkedin size={20} /></a>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-black">Navigation</h4>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white">Navigation</h4>
             <div className="flex flex-col gap-3 text-sm text-zinc-500 font-medium">
-              <a href="#" className="hover:text-black transition-colors">Home</a>
-              <a href="#systems" className="hover:text-black transition-colors">Systems</a>
-              <a href="#process" className="hover:text-black transition-colors">Process</a>
-              <a href="#discovery" className="hover:text-black transition-colors">Discovery</a>
+              <a href="#" className="hover:text-white transition-colors">Home</a>
+              <a href="#systems" className="hover:text-white transition-colors">Systems</a>
+              <a href="#process" className="hover:text-white transition-colors">Process</a>
+              <a href="#discovery" className="hover:text-white transition-colors">Discovery</a>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-black">Office</h4>
+            <h4 className="text-xs font-bold uppercase tracking-widest text-white">Office</h4>
             <p className="text-sm text-zinc-500 leading-relaxed">
               Based in India.<br/>
               Serving high-performance teams worldwide.
@@ -1315,14 +1307,14 @@ const Footer = () => {
           </div>
         </div>
         
-        <Separator className="bg-border" />
+        <Separator className="bg-zinc-800" />
         
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-muted-foreground text-center md:text-left">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-zinc-600 text-center md:text-left">
           <p>© 2026 OPSIYS SYSTEMS INC. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-4 md:gap-8">
-            <a href="#" className="hover:text-black">Privacy</a>
-            <a href="#" className="hover:text-black">Terms</a>
-            <a href="#" className="hover:text-black">Cookies</a>
+            <a href="#" className="hover:text-white transition-colors">Privacy</a>
+            <a href="#" className="hover:text-white transition-colors">Terms</a>
+            <a href="#" className="hover:text-white transition-colors">Cookies</a>
           </div>
         </div>
       </div>
