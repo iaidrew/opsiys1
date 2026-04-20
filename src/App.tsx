@@ -63,9 +63,7 @@ const Logo = () => (
       src="/assets/opsiyslogo.png" 
       alt="OPSIYS" 
       className="h-full w-auto block transition-opacity hover:opacity-80" 
-      onError={(e) => {
-        (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/opsiys/200/50?text=OPSIYS';
-      }}
+      
     />
   </div>
 );
