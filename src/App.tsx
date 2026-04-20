@@ -438,29 +438,27 @@ const AuthPortal = () => {
                 </button>
               </div>
 
-              <div className="space-y-6">
-                {[
-                  { date: "Oct 12, 2026", type: "Automation", status: "In Progress", name: "Inbound Pipeline Sync" },
-                  { date: "Sep 28, 2026", type: "Discovery", status: "Completed", name: "AI Stack Consultation" }
-                ].map((item, i) => (
-                  <div key={i} className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-zinc-100 hover:border-black transition-colors bg-zinc-50/50">
-                    <div>
-                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{item.date}</p>
-                      <h4 className="font-extrabold text-lg tracking-tight">{item.name}</h4>
-                      <p className="text-xs text-muted-foreground uppercase tracking-tighter">{item.type}</p>
-                    </div>
-                    <div className="mt-4 md:mt-0">
-                      <Badge variant={item.status === 'Completed' ? 'secondary' : 'outline'} className="rounded-none font-bold uppercase text-[9px] tracking-widest px-3">
-                        {item.status}
-                      </Badge>
-                    </div>
-                  </div>
-                ))}
-                
-                <div className="text-center py-12 border-2 border-dashed border-zinc-100 text-muted-foreground bg-zinc-50/30">
-                  <p className="text-xs font-bold uppercase tracking-widest">End of History</p>
-                </div>
-              </div>
+              <ScrollArea className="h-[400px] pr-4">
+                <div className="space-y-6">
+                  {leads.length > 0 ? (
+                    leads.map((lead, i) => (
+                    <div key={lead.id} className="flex justify-between p-4 border border-zinc-100 bg-zinc-50/50">
+                      <div>
+                        <p className="text-[10px] text-zinc-400 font-bold uppercase">
+                          {/* This converts the Firebase timestamp to a readable date */}{lead.createdAt?.toDate?.().toLocaleDateString() || "Just now"}
+            </p>
+            <h4 className="font-extrabold">{lead.projectType}</h4>
+            <p className="text-xs text-zinc-500">{lead.message}</p>
+          </div>
+          {/* Badge shows the real-time status from your database */}
+          <Badge className="bg-emerald-500">{lead.status}</Badge>
+        </div>
+      ))
+    ) : (
+      <p className="text-center py-10">No projects found yet.</p>
+    )}
+  </div>
+</ScrollArea>
               
               <div className="mt-8 flex justify-end">
                 <Button onClick={() => setShowHistory(false)} className="bg-black text-white rounded-none px-12 font-bold text-[10px] uppercase tracking-[0.2em]">

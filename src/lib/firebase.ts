@@ -1,6 +1,19 @@
 import { initializeApp } from "firebase/app";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import { getFirestore, collection, addDoc, serverTimestamp, doc, getDoc, setDoc, getDocFromServer } from "firebase/firestore";
+import { 
+  getFirestore, 
+  collection, 
+  addDoc, 
+  serverTimestamp, 
+  doc, 
+  getDoc, 
+  setDoc, 
+  getDocFromServer,
+  query,
+  where,
+  orderBy,
+  onSnapshot
+} from "firebase/firestore";
 import firebaseConfig from "../../firebase-applet-config.json";
 
 const app = initializeApp(firebaseConfig);
@@ -79,6 +92,23 @@ export const submitLead = async (leadData: {
     console.error("Error submitting lead:", error);
     throw error;
   }
+};
+
+export const subscribeToUserLeads = (userId: string, callback: (leads: any[]) => void) => {
+  const leadsRef = collection(db, "leads");
+  const q = query(
+    leadsRef, 
+    where("userId", "==", userId),
+    orderBy("createdAt", "desc")
+  );
+
+  return onSnapshot(q, (snapshot) => {
+    const leads = snapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+    callback(leads);
+  });
 };
 
 // --- Connection Test ---
