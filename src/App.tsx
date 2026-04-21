@@ -7,7 +7,7 @@ import {
   useLocation,
   useNavigate
 } from "react-router-dom";
-import AboutPage from "./pages/about.tsx";
+import AboutPage from "./pages/About";
 import { 
   Search, 
   ArrowRight, 
@@ -68,9 +68,9 @@ const staggerContainer = {
 // --- Shared Components ---
 
 const Logo = () => (
-  <div className="flex items-center group cursor-pointer h-12">
+  <div className="flex items-center group cursor-pointer h-8">
     <img 
-      src="/assets/opsiyslogo.png" 
+      src="/logo.png" 
       alt="OPSIYS" 
       className="h-full w-auto block transition-opacity hover:opacity-80" 
       onError={(e) => {
