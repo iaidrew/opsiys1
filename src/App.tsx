@@ -68,7 +68,7 @@ const staggerContainer = {
 // --- Shared Components ---
 
 const Logo = () => (
-  <div className="flex items-center group cursor-pointer h-12">
+  <div className="flex items-center group cursor-pointer h-8">
     <img 
       src="/assets/opsiyslogo.png" 
       alt="OPSIYS" 
@@ -80,9 +80,10 @@ const Logo = () => (
   </div>
 );
 
-const Navbar = () => {
+const Navbar = ({ user, handleSignIn, logout, profile }: { user: any, handleSignIn: any, logout: any, profile: any }) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
+  const [portalOpen, setPortalOpen] = React.useState(false);
   const location = useLocation();
   const isAboutPage = location.pathname === "/about";
 
@@ -104,13 +105,13 @@ const Navbar = () => {
   return (
     <>
       {/* Floating Pill Navigation */}
-      <div className="fixed top-4 md:top-6 left-0 right-0 z-[60] px-4 md:px-6 flex justify-center pointer-events-none">
+      <div className="fixed top-4 md:top-6 left-0 right-0 z-[60] px-4 md:px-6 flex justify-start md:justify-center pointer-events-none">
         <motion.nav 
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, ease: "circOut" }}
           className={cn(
-            "pointer-events-auto flex items-center justify-between gap-4 md:gap-8 px-2 md:px-3 py-1.5 md:py-2 rounded-full border transition-all duration-700 max-w-[95vw] sm:max-w-none group shadow-2xl",
+            "pointer-events-auto flex items-center justify-between gap-4 md:gap-8 px-2 md:px-3 py-1 md:py-1.5 rounded-full border transition-all duration-700 w-full md:w-auto md:max-w-none group shadow-2xl relative",
             scrolled || isAboutPage
               ? "bg-black/95 backdrop-blur-2xl border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-white/5" 
               : "bg-[#0B0B0B]/90 backdrop-blur-md border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
@@ -152,12 +153,55 @@ const Navbar = () => {
 
           {/* Right Section */}
           <div className="flex items-center gap-1 sm:gap-2 pr-1.5 shrink-0">
+            {/* Unified Partner Access */}
+            {user ? (
+              <div className="relative">
+                <button 
+                  onClick={() => setPortalOpen(!portalOpen)}
+                  className="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border border-white/20 transition-all ring-1 ring-white/10 active:scale-95 shadow-lg"
+                >
+                  <img src={user.photoURL || ""} alt="User" referrerPolicy="no-referrer" className="w-full h-full object-cover" />
+                </button>
+                <AnimatePresence>
+                  {portalOpen && (
+                    <div className="absolute right-0 mt-4 w-64 bg-white border border-zinc-100 shadow-2xl p-4 rounded-2xl overflow-hidden text-black z-[100] pointer-events-auto">
+                      <div className="flex items-center gap-3 pb-4 border-b border-zinc-50">
+                        <img src={user.photoURL || ""} alt="User" referrerPolicy="no-referrer" className="w-8 h-8 rounded-full border border-zinc-100" />
+                        <div className="min-w-0">
+                          <p className="text-[11px] font-black truncate uppercase tracking-tight leading-none mb-1">{profile?.displayName || user.displayName}</p>
+                          <p className="text-[9px] text-zinc-400 truncate font-bold">{user.email}</p>
+                        </div>
+                      </div>
+                      <div className="py-2 space-y-1">
+                        <Button 
+                          variant="ghost" 
+                          onClick={() => { logout(); setPortalOpen(false); }}
+                          className="w-full justify-start text-[9px] font-extrabold uppercase tracking-widest h-9 hover:bg-zinc-50 rounded-xl"
+                        >
+                          <LogOut size={12} className="mr-2" /> Sign Out
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Button 
+                onClick={handleSignIn}
+                className="bg-accent/90 hover:bg-accent text-white hover:scale-105 active:scale-95 transition-all rounded-full h-8 md:h-9 px-3 md:px-5 text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest shadow-lg"
+              >
+                <LogIn size={12} className="mr-0 md:mr-2" /> 
+                <span className="hidden sm:inline">Partner Portal</span>
+                <span className="sm:hidden">Login</span>
+              </Button>
+            )}
+
             <a href="/#contact" className="hidden sm:block transition-all">
               <Button 
                 size="sm" 
                 className="rounded-full px-6 h-8 sm:h-9 transition-all duration-500 font-bold text-[11px] uppercase tracking-wider bg-white text-black hover:bg-zinc-200"
               >
-                Book a Call
+                Start
               </Button>
             </a>
             
@@ -166,9 +210,9 @@ const Navbar = () => {
               variant="ghost" 
               size="icon"
               onClick={() => setIsOpen(!isOpen)}
-              className="md:hidden w-10 h-10 rounded-full text-white hover:bg-white/10 hover:text-white shrink-0"
+              className="md:hidden w-8 h-8 rounded-full text-white hover:bg-white/10 shrink-0"
             >
-              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </Button>
           </div>
         </motion.nav>
@@ -181,7 +225,7 @@ const Navbar = () => {
             initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
             animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
             exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
-            className="fixed inset-0 z-[55] bg-black/90 flex items-center justify-center p-6 md:hidden"
+            className="fixed inset-0 z-[55] bg-black/95 flex items-center justify-center p-6 md:hidden"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -242,7 +286,6 @@ const Navbar = () => {
 
 const AuthPortal = () => {
   const [user, setUser] = React.useState<FirebaseUser | null>(null);
-  const [portalOpen, setPortalOpen] = React.useState(false);
   const [showSettings, setShowSettings] = React.useState(false);
   const [showHistory, setShowHistory] = React.useState(false);
   const [profile, setProfile] = React.useState<any>(null);
@@ -297,94 +340,9 @@ const AuthPortal = () => {
   };
 
   return (
-    <div className="fixed top-4 right-4 md:top-6 md:right-8 z-[70]">
-      {user ? (
-        <div className="relative">
-          <motion.button 
-            whileHover={{ scale: 1.05, borderColor: "black" }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setPortalOpen(!portalOpen)}
-            className="w-10 h-10 md:w-11 md:h-11 rounded-full overflow-hidden border-2 border-white shadow-[0_10px_30px_rgba(0,0,0,0.15)] ring-1 ring-black/5 transition-all cursor-pointer bg-white flex items-center justify-center p-0"
-          >
-            <img src={user.photoURL || ""} alt={user.displayName || ""} referrerPolicy="no-referrer" className="w-full h-full object-cover" />
-          </motion.button>
-
-          <AnimatePresence>
-            {portalOpen && (
-              <motion.div 
-                initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                className="absolute right-0 mt-4 w-72 bg-white border border-zinc-100 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.25)] p-0 rounded-2xl overflow-hidden"
-              >
-                <div className="p-6 space-y-6 text-black">
-                  <div className="flex items-center gap-4 pb-6 border-b border-zinc-50">
-                    <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-zinc-100 p-0.5">
-                      <img src={user.photoURL || ""} alt={user.displayName || ""} referrerPolicy="no-referrer" className="w-full h-full rounded-full object-cover" />
-                    </div>
-                    <div className="overflow-hidden">
-                      <p className="text-sm font-black truncate leading-tight uppercase tracking-tight">
-                        {profile?.displayName || user.displayName}
-                      </p>
-                      <p className="text-[10px] text-zinc-400 truncate font-bold">{user.email}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <button 
-                      onClick={() => {
-                        setShowSettings(true);
-                        setPortalOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-zinc-50 transition-colors flex items-center justify-between group/link"
-                    >
-                      <span className="flex items-center gap-3"><User size={14} className="text-zinc-400 group-hover/link:text-black transition-colors" /> Account Settings</span>
-                      <ArrowRight size={12} className="opacity-0 group-hover/link:opacity-100 -translate-x-2 group-hover/link:translate-x-0 transition-all" />
-                    </button>
-                    <button 
-                      onClick={() => {
-                        setShowHistory(true);
-                        setPortalOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-3 text-[10px] font-bold uppercase tracking-[0.2em] rounded-xl hover:bg-zinc-50 transition-colors flex items-center justify-between group/link"
-                    >
-                      <span className="flex items-center gap-3"><Workflow size={14} className="text-zinc-400 group-hover/link:text-black transition-colors" /> Project History</span>
-                      <ArrowRight size={12} className="opacity-0 group-hover/link:opacity-100 -translate-x-2 group-hover/link:translate-x-0 transition-all" />
-                    </button>
-                  </div>
-
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={() => {
-                      logout();
-                      setPortalOpen(false);
-                    }}
-                    className="w-full rounded-full h-11 border-zinc-200 hover:border-black hover:bg-black hover:text-white transition-all text-[10px] font-extrabold uppercase tracking-[0.2em] text-black"
-                  >
-                    <LogOut size={14} className="mr-2" /> Sign Out
-                  </Button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      ) : (
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-        >
-          <Button 
-            onClick={handleSignIn}
-            className="bg-black/90 hover:bg-black text-white hover:scale-105 active:scale-95 transition-all rounded-full h-10 md:h-11 px-5 md:px-7 text-[10px] font-extrabold uppercase tracking-widest shadow-[0_10px_20px_rgba(0,0,0,0.2)]"
-          >
-            <LogIn size={16} className="mr-2" /> 
-            <span className="hidden sm:inline">Partner Portal</span>
-            <span className="sm:hidden">Login</span>
-          </Button>
-        </motion.div>
-      )}
-
+    <>
+      <Navbar user={user} handleSignIn={handleSignIn} logout={logout} profile={profile} />
+      
       {/* Settings Modal */}
       <AnimatePresence>
         {showSettings && (
@@ -536,7 +494,7 @@ const AuthPortal = () => {
           </div>
         )}
       </AnimatePresence>
-    </div>
+    </>
   );
 };
 
@@ -1017,21 +975,21 @@ const ToolDiscovery = () => {
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 relative min-h-[300px]"
           >
             {!user && (
-              <div className="absolute inset-0 z-20 bg-white/30 backdrop-blur-[12px] flex items-center justify-center p-6 rounded-none overflow-hidden">
+              <div className="absolute inset-x-0 top-0 bottom-auto z-20 bg-white/30 backdrop-blur-[12px] flex items-start justify-center p-6 md:p-12 rounded-none overflow-hidden h-[400px]">
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                  initial={{ opacity: 0, scale: 0.9, y: -20 }}
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
                   viewport={{ once: true, margin: "400px" }}
                   transition={{ duration: 0.5, ease: "circOut" }}
-                  className="bg-white p-8 md:p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-black/5 text-center max-w-[320px] md:max-w-md space-y-6 md:space-y-8 relative"
+                  className="bg-white p-6 md:p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-black/5 text-center max-w-[320px] md:max-w-md space-y-6 md:space-y-8 relative mt-10"
                 >
-                  <div className="w-16 h-16 md:w-20 md:h-20 bg-black text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
-                    <LogIn size={28} className="md:hidden" />
+                  <div className="w-14 h-14 md:w-20 md:h-20 bg-black text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                    <LogIn size={24} className="md:hidden" />
                     <LogIn size={32} className="hidden md:block" />
                   </div>
                   <div className="space-y-3">
-                    <h3 className="font-extrabold text-2xl md:text-3xl tracking-tighter uppercase leading-tight text-black">Login to Unlock Access</h3>
-                    <p className="text-xs md:text-base text-muted-foreground leading-relaxed font-medium">
+                    <h3 className="font-extrabold text-xl md:text-3xl tracking-tighter uppercase leading-tight text-black">Login to Unlock Access</h3>
+                    <p className="text-[10px] md:text-base text-muted-foreground leading-relaxed font-medium">
                       Unlock proprietary codebases, logic roadmaps, and the full capability of our AI automation tools.
                     </p>
                   </div>
@@ -1044,12 +1002,12 @@ const ToolDiscovery = () => {
                         console.error(error);
                       }
                     }} 
-                    className="w-full bg-black hover:bg-zinc-800 text-white rounded-none py-7 md:py-9 font-bold text-base md:text-lg transition-all shadow-lg active:scale-95 uppercase tracking-widest"
+                    className="w-full bg-black hover:bg-zinc-800 text-white rounded-none py-6 md:py-9 font-bold text-sm md:text-lg transition-all shadow-lg active:scale-95 uppercase tracking-widest"
                   >
                     Connect with Google
                   </Button>
                   <div className="pt-2">
-                    <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.3em]">Agency Only Infrastructure</p>
+                    <p className="text-[9px] font-bold text-zinc-300 uppercase tracking-[0.3em]">Agency Only Infrastructure</p>
                   </div>
                 </motion.div>
               </div>
@@ -1198,23 +1156,23 @@ const Contact = () => {
           transition={{ duration: 0.8 }}
           className="lg:col-span-5 space-y-10 md:space-y-12"
         >
-          <div className="space-y-5 md:space-y-6">
-            <Badge className="bg-accent/10 text-accent hover:bg-accent/20 border-none px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest">
+          <div className="space-y-4 md:space-y-6">
+            <Badge className="bg-accent/10 text-accent hover:bg-accent/20 border-none px-4 py-1.5 rounded-full text-[9px] uppercase font-bold tracking-widest">
               Available for Q4 Bookings
             </Badge>
-            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tighter leading-[0.9] uppercase">
+            <h2 className="text-3xl md:text-6xl font-black tracking-tighter leading-[0.9] uppercase">
               Book Your <br/><span className="text-accent">Free Call</span>
             </h2>
-            <p className="text-zinc-500 text-base md:text-xl font-medium leading-relaxed max-w-md">
-              Secure your spot for a free discovery session. We'll show you exactly how AI can automate your manual work and save you time.
+            <p className="text-zinc-500 text-sm md:text-xl font-medium leading-relaxed max-w-sm">
+              Secure your spot for a discovery session. We'll show you exactly how AI can automate your manual work.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 gap-5 md:gap-6">
+          <div className="grid grid-cols-1 gap-4 md:gap-6">
             {[
-              { title: "Discovery Session", desc: "A deep dive into your manual processes and where you can save time." },
-              { title: "Savings Analysis", desc: "A clear report on how much money and time AI will save you." },
-              { title: "Automation Roadmap", desc: "A step-by-step plan for building and launching your AI systems." }
+              { title: "Discovery Session", desc: "A deep dive into your manual processes." },
+              { title: "Savings Analysis", desc: "A report on money and time AI will save you." },
+              { title: "Automation Roadmap", desc: "A step-by-step plan for launching your systems." }
             ].map((item, idx) => (
               <motion.div 
                 key={item.title}
@@ -1222,14 +1180,14 @@ const Contact = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + idx * 0.1 }}
                 viewport={{ once: true }}
-                className="flex gap-5 md:gap-6 group"
+                className="flex gap-4 md:gap-6 group"
               >
-                <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 bg-black text-white flex items-center justify-center font-bold text-base md:text-lg rounded-xl">
+                <div className="w-8 h-8 md:w-12 md:h-12 shrink-0 bg-black text-white flex items-center justify-center font-black text-xs md:text-lg rounded-xl">
                   0{idx + 1}
                 </div>
                 <div>
-                  <h4 className="font-extrabold uppercase text-xs md:text-sm tracking-tight mb-1">{item.title}</h4>
-                  <p className="text-zinc-500 text-xs md:text-sm leading-relaxed">{item.desc}</p>
+                  <h4 className="font-black uppercase text-[10px] md:text-sm tracking-tight mb-0.5">{item.title}</h4>
+                  <p className="text-zinc-400 text-[10px] md:text-sm leading-snug">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -1286,74 +1244,74 @@ const Contact = () => {
             )}
           </AnimatePresence>
 
-          <form className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-500", status === 'success' && "opacity-0 invisible scale-95")} onSubmit={handleSubmit}>
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Contact Name</label>
-              <Input id="name" value={formData.name} onChange={handleChange} required placeholder="Lead Contact" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
+          <form className={cn("grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 transition-all duration-500", status === 'success' && "opacity-0 invisible scale-95")} onSubmit={handleSubmit}>
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1 leading-none">Contact Name</label>
+              <Input id="name" value={formData.name} onChange={handleChange} required placeholder="Lead Contact" className="rounded-xl h-12 md:h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-4 font-bold text-xs md:text-base" />
             </div>
             
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Business Email</label>
-              <Input id="email" type="email" value={formData.email} onChange={handleChange} required placeholder="name@company.com" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1 leading-none">Business Email</label>
+              <Input id="email" type="email" value={formData.email} onChange={handleChange} required placeholder="name@company.com" className="rounded-xl h-12 md:h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-4 font-bold text-xs md:text-base" />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Organization</label>
-              <Input id="company" value={formData.company} onChange={handleChange} required placeholder="Acme Systems" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1 leading-none">Organization</label>
+              <Input id="company" value={formData.company} onChange={handleChange} required placeholder="Acme Systems" className="rounded-xl h-12 md:h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-4 font-bold text-xs md:text-base" />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Phone Number</label>
-              <Input id="phone" value={formData.phone} onChange={handleChange} required placeholder="+1 (555) 000-0000" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1 leading-none">Phone Number</label>
+              <Input id="phone" value={formData.phone} onChange={handleChange} required placeholder="+1 (555) 000-0000" className="rounded-xl h-12 md:h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-4 font-bold text-xs md:text-base" />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Project Category</label>
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1 leading-none">Project Category</label>
               <select 
                 id="projectType" 
                 value={formData.projectType} 
                 onChange={handleChange as any}
-                className="w-full rounded-xl h-14 border border-zinc-100 bg-zinc-50/30 focus:outline-none focus:border-black/20 px-5 font-bold text-sm appearance-none cursor-pointer"
+                className="w-full rounded-xl h-12 md:h-14 border border-zinc-100 bg-zinc-50/30 focus:outline-none focus:border-black/20 px-4 font-bold text-xs appearance-none cursor-pointer"
               >
                 {projectTypes.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Target Urgency</label>
+            <div className="space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1 leading-none">Target Urgency</label>
               <select 
                 id="urgency" 
                 value={formData.urgency} 
                 onChange={handleChange as any}
-                className="w-full rounded-xl h-14 border border-zinc-100 bg-zinc-50/30 focus:outline-none focus:border-black/20 px-5 font-bold text-sm appearance-none cursor-pointer"
+                className="w-full rounded-xl h-12 md:h-14 border border-zinc-100 bg-zinc-50/30 focus:outline-none focus:border-black/20 px-4 font-bold text-xs appearance-none cursor-pointer"
               >
                 {urgencyLevels.map(u => <option key={u} value={u}>{u}</option>)}
               </select>
             </div>
 
-            <div className="md:col-span-2 space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Investment Range ($)</label>
-              <Input id="budget" value={formData.budget} onChange={handleChange} required placeholder="e.g. 5,000 - 15,000" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
+            <div className="md:col-span-2 space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1 leading-none">Investment Range ($)</label>
+              <Input id="budget" value={formData.budget} onChange={handleChange} required placeholder="e.g. 5,000 - 15,000" className="rounded-xl h-12 md:h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-4 font-bold text-xs md:text-base" />
             </div>
 
-            <div className="md:col-span-2 space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">System Requirements</label>
+            <div className="md:col-span-2 space-y-1">
+              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1 leading-none">System Requirements</label>
               <textarea 
                 id="message"
                 value={formData.message}
                 onChange={handleChange}
                 required
-                className="w-full min-h-[140px] p-5 text-sm border border-zinc-100 bg-zinc-50/30 rounded-2xl focus:outline-none focus:border-black/20 transition-colors font-bold"
+                className="w-full min-h-[100px] md:min-h-[140px] p-4 text-xs md:text-sm border border-zinc-100 bg-zinc-50/30 rounded-2xl focus:outline-none focus:border-black/20 transition-colors font-bold"
                 placeholder="Describe the current manual process you want to automate..."
               />
             </div>
             
-            <div className="md:col-span-2 pt-4">
-              {status === 'error' && <p className="text-[11px] text-red-500 font-bold mb-4 bg-red-50 p-3 rounded-lg border border-red-100">{feedback}</p>}
+            <div className="md:col-span-2 pt-2">
+              {status === 'error' && <p className="text-[10px] text-red-500 font-bold mb-4 bg-red-50 p-2 rounded-lg border border-red-100">{feedback}</p>}
               <Button 
                 type="submit" 
                 disabled={status === 'loading'} 
-                className="w-full bg-black hover:bg-zinc-800 text-white rounded-full h-16 text-lg font-extrabold uppercase tracking-widest shadow-2xl shadow-black/20 group overflow-hidden"
+                className="w-full bg-black hover:bg-zinc-800 text-white rounded-full h-12 md:h-16 text-base md:text-lg font-extrabold uppercase tracking-widest shadow-xl shadow-black/10 group overflow-hidden"
               >
                 {status === 'loading' ? (
                   <div className="flex items-center gap-3">
@@ -1362,7 +1320,7 @@ const Contact = () => {
                   </div>
                 ) : (
                   <span className="flex items-center justify-center gap-3">
-                    Submit Project Brief <ArrowRight className="group-hover:translate-x-2 transition-transform" />
+                    Submit Project Brief <ArrowRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-2 transition-transform" />
                   </span>
                 )}
               </Button>
@@ -1453,7 +1411,6 @@ export default function App() {
     <Router>
       <div className="min-h-screen bg-white font-sans selection:bg-accent selection:text-white relative">
         <AuthPortal />
-        <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/about" element={<AboutPage />} />
