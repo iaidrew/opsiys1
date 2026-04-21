@@ -201,7 +201,7 @@ const Navbar = ({ user, handleSignIn, logout, profile }: { user: any, handleSign
                 size="sm" 
                 className="rounded-full px-6 h-8 sm:h-9 transition-all duration-500 font-bold text-[11px] uppercase tracking-wider bg-white text-black hover:bg-zinc-200"
               >
-                Start
+                Book a Call
               </Button>
             </a>
             
