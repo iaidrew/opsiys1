@@ -13,6 +13,7 @@ import {
   Mail,
   User,
   Building2,
+  Wallet,
   Twitter,
   Github,
   Linkedin,
@@ -44,9 +45,7 @@ const fadeIn = {
   transition: { duration: 0.5, ease: "easeOut" }
 };
 
-// FIX 1: Added missing `initial` key so `initial="initial"` on motion.div works correctly
 const staggerContainer = {
-  initial: {},
   animate: {
     transition: {
       staggerChildren: 0.1
@@ -54,14 +53,17 @@ const staggerContainer = {
   }
 };
 
+// --- Components ---
+
 // --- Shared Components ---
 
 const Logo = () => (
-  <div className="flex items-center group cursor-pointer h-12">
+  <div className="flex items-center group cursor-pointer h-8">
     <img 
       src="assets/opsiyslogo.png" 
-      alt="OPSIYS"
+      alt="OPSIYS" 
       className="h-full w-auto block transition-opacity hover:opacity-80" 
+      
     />
   </div>
 );
@@ -87,15 +89,12 @@ const Navbar = () => {
           className={cn(
             "pointer-events-auto flex items-center justify-between gap-4 md:gap-8 px-2 md:px-3 py-1.5 md:py-2 rounded-full border transition-all duration-700 max-w-[95vw] sm:max-w-none group",
             scrolled 
-              ? "bg-black/90 backdrop-blur-2xl border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-white/5" 
-              : "bg-[#0B0B0B]/90 backdrop-blur-md border-zinc-200/50 shadow-[0_10px_30px_rgba(0,0,0,0.05)]"
+              ? "bg-black/95 backdrop-blur-2xl border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-white/5" 
+              : "bg-[#0B0B0B]/90 backdrop-blur-md border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
           )}
         >
           {/* Logo Section */}
-          <div className={cn(
-            "pl-3 pr-1 transition-all duration-500",
-            scrolled ? "brightness-0 invert" : ""
-          )}>
+          <div className="pl-3 pr-1 transition-all duration-500">
             <Logo />
           </div>
 
@@ -107,9 +106,7 @@ const Navbar = () => {
                 href={`#${item.toLowerCase()}`}
                 className={cn(
                   "px-4 py-2 text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full",
-                  scrolled 
-                    ? "text-zinc-400 hover:text-white hover:bg-white/10" 
-                    : "text-zinc-500 hover:text-black hover:bg-black/5"
+                  "text-zinc-400 hover:text-white hover:bg-white/10"
                 )}
               >
                 {item}
@@ -124,9 +121,7 @@ const Navbar = () => {
                 size="sm" 
                 className={cn(
                   "rounded-full px-6 h-9 transition-all duration-500 font-bold text-[11px] uppercase tracking-wider",
-                  scrolled
-                    ? "bg-white text-black hover:bg-zinc-200"
-                    : "bg-black text-white hover:bg-zinc-800 shadow-lg shadow-black/10"
+                  "bg-white text-black hover:bg-zinc-200"
                 )}
               >
                 Book a Call
@@ -180,9 +175,11 @@ const Navbar = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <Button className="w-full bg-white text-black hover:bg-accent hover:text-white rounded-none py-8 text-xl font-bold">
-                  Book a Call
-                </Button>
+                <a href="#contact" onClick={() => setIsOpen(false)}>
+                  <Button className="w-full bg-white text-black hover:bg-accent hover:text-white rounded-none py-8 text-xl font-bold">
+                    Book a Call
+                  </Button>
+                </a>
               </motion.div>
             </div>
             
@@ -211,39 +208,29 @@ const AuthPortal = () => {
   const [leads, setLeads] = React.useState<any[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
 
-  // FIX 2: Combined auth listener + subscribeToUserLeads into one effect
-  // so leads are actually populated when user logs in
   React.useEffect(() => {
-    let unsubscribeLeads: (() => void) | null = null;
-
-    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
-
-      // Tear down any previous leads subscription
-      if (unsubscribeLeads) {
-        unsubscribeLeads();
-        unsubscribeLeads = null;
-      }
-
       if (currentUser) {
         const p = await getUserProfile(currentUser.uid);
         setProfile(p || { displayName: currentUser.displayName || "", company: "", role: "", industry: "" });
-
-        // Subscribe to this user's leads in real-time
-        unsubscribeLeads = subscribeToUserLeads(currentUser.uid, (data: any[]) => {
-          setLeads(data);
-        });
       } else {
         setProfile(null);
         setLeads([]);
       }
     });
-
-    return () => {
-      unsubscribeAuth();
-      if (unsubscribeLeads) unsubscribeLeads();
-    };
+    return () => unsubscribe();
   }, []);
+
+  React.useEffect(() => {
+    if (!user || !showHistory) return;
+
+    const unsubscribe = subscribeToUserLeads(user.uid, (fetchedLeads) => {
+      setLeads(fetchedLeads);
+    });
+
+    return () => unsubscribe();
+  }, [user, showHistory]);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -461,20 +448,40 @@ const AuthPortal = () => {
               <ScrollArea className="h-[400px] pr-4">
                 <div className="space-y-6">
                   {leads.length > 0 ? (
-                    leads.map((lead) => (
-                      <div key={lead.id} className="flex justify-between p-4 border border-zinc-100 bg-zinc-50/50">
+                    leads.map((lead, i) => (
+                      <div key={lead.id || i} className="flex flex-col md:flex-row md:items-center justify-between p-4 border border-zinc-100 hover:border-black transition-colors bg-zinc-50/50">
                         <div>
-                          <p className="text-[10px] text-zinc-400 font-bold uppercase">
-                            {lead.createdAt?.toDate?.().toLocaleDateString() || "Just now"}
+                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+                            {lead.createdAt?.toDate ? lead.createdAt.toDate().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : "Recently Submitted"}
                           </p>
-                          <h4 className="font-extrabold">{lead.projectType}</h4>
-                          <p className="text-xs text-zinc-500">{lead.message}</p>
+                          <h4 className="font-extrabold text-lg tracking-tight uppercase">{lead.projectType || "General Inquiry"}</h4>
+                          <p className="text-xs text-muted-foreground uppercase tracking-tighter truncate max-w-[250px]">{lead.message}</p>
                         </div>
-                        <Badge className="bg-emerald-500">{lead.status}</Badge>
+                        <div className="mt-4 md:mt-0">
+                          <Badge 
+                            variant={lead.status === 'qualified' ? 'secondary' : 'outline'} 
+                            className={cn(
+                              "rounded-none font-bold uppercase text-[9px] tracking-widest px-3",
+                              lead.status === 'new' && "border-accent text-accent",
+                              lead.status === 'contacted' && "border-blue-500 text-blue-500",
+                              lead.status === 'qualified' && "bg-emerald-500 text-white border-none"
+                            )}
+                          >
+                            {lead.status}
+                          </Badge>
+                        </div>
                       </div>
                     ))
                   ) : (
-                    <p className="text-center py-10">No projects found yet.</p>
+                    <div className="text-center py-12 border-2 border-dashed border-zinc-100 text-muted-foreground bg-zinc-50/30">
+                      <p className="text-xs font-bold uppercase tracking-widest">No project history found</p>
+                    </div>
+                  )}
+                  
+                  {leads.length > 0 && (
+                    <div className="text-center py-8 border-t border-zinc-100 text-muted-foreground mt-4">
+                      <p className="text-[9px] font-bold uppercase tracking-[0.3em]">End of Transmission</p>
+                    </div>
                   )}
                 </div>
               </ScrollArea>
@@ -542,7 +549,7 @@ const Hero = () => {
                     {words[index]}
                   </motion.span>
                 </AnimatePresence>
-                <span className="opacity-0">{words[0]}</span>
+                <span className="opacity-0">{words[0]}</span> {/* Spacer */}
               </span>
               <br/>
               that run your business
@@ -554,12 +561,16 @@ const Hero = () => {
           </motion.p>
           
           <motion.div variants={fadeIn} className="flex flex-wrap gap-3 md:gap-4">
-            <Button size="lg" className="bg-black hover:bg-black/90 text-white rounded-none px-6 md:px-8 py-5 md:py-6 text-base md:text-lg font-semibold transform transition-transform active:scale-95">
-              Book a Call <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
-            </Button>
-            <Button variant="outline" size="lg" className="rounded-none px-6 md:px-8 py-5 md:py-6 text-base md:text-lg font-semibold border-2 border-black hover:bg-black hover:text-white transition-all duration-300">
-              Explore Systems
-            </Button>
+            <a href="#contact">
+              <Button size="lg" className="bg-black hover:bg-black/90 text-white rounded-none px-6 md:px-8 py-5 md:py-6 text-base md:text-lg font-semibold transform transition-transform active:scale-95">
+                Book a Call <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
+              </Button>
+            </a>
+            <a href="#systems">
+              <Button variant="outline" size="lg" className="rounded-none px-6 md:px-8 py-5 md:py-6 text-base md:text-lg font-semibold border-2 border-black hover:bg-black hover:text-white transition-all duration-300">
+                Explore Systems
+              </Button>
+            </a>
           </motion.div>
         </motion.div>
 
@@ -570,8 +581,14 @@ const Hero = () => {
           className="relative mt-8 lg:mt-0 max-w-xl mx-auto lg:max-w-none w-full"
         >
           <motion.div 
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            animate={{ 
+              y: [0, -10, 0],
+            }}
+            transition={{ 
+              duration: 6, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
             className="relative z-10 bg-white border border-border shadow-2xl rounded-xl p-6 sm:p-10 overflow-hidden transform-gpu"
           >
             <div className="flex items-center justify-between mb-8 border-b border-border pb-6">
@@ -592,24 +609,22 @@ const Hero = () => {
             
             <div className="space-y-6">
               {[
-                { label: "AI Lead Enrichment", status: "Active", pct: "100%", color: "bg-black" },
-                { label: "WhatsApp CRM Sync", status: "Processing", pct: "66%", color: "bg-accent" },
-                { label: "Workflow Optimization", status: "Complete", pct: "83%", color: "bg-black" },
-                { label: "Internal Agent Bot", status: "Active", pct: "75%", color: "bg-black" }
+                { label: "AI Lead Enrichment", status: "Active", width: "w-full" },
+                { label: "WhatsApp CRM Sync", status: "Processing", width: "w-2/3", color: "bg-accent" },
+                { label: "Workflow Optimization", status: "Complete", width: "w-5/6" },
+                { label: "Internal Agent Bot", status: "Active", width: "w-3/4" }
               ].map((item, idx) => (
                 <div key={idx} className="space-y-3">
                   <div className="flex justify-between text-[13px] font-bold">
                     <span>{item.label}</span>
-                    <span className={cn(item.color === "bg-accent" ? "text-accent" : "text-black", "uppercase tracking-tighter")}>
-                      {item.status}
-                    </span>
+                    <span className={cn(idx === 1 ? "text-accent" : "text-black", "uppercase tracking-tighter")}>{item.status}</span>
                   </div>
                   <div className="h-2.5 bg-secondary w-full rounded-full overflow-hidden border border-black/5">
                     <motion.div 
                       initial={{ width: 0 }}
-                      animate={{ width: item.pct }}
+                      animate={{ width: item.width.split('-')[1] === 'full' ? '100%' : item.width.split('-')[1] === '2/3' ? '66%' : item.width.split('-')[1] === '5/6' ? '83%' : '75%' }}
                       transition={{ duration: 1.5, delay: 0.5 + idx * 0.2 }}
-                      className={cn("h-full", item.color)}
+                      className={cn("h-full", item.color ?? "bg-black")}
                     />
                   </div>
                 </div>
@@ -632,6 +647,7 @@ const Hero = () => {
             </motion.div>
           </motion.div>
           
+          {/* Subtle Background Elements */}
           <div className="absolute -top-10 -right-10 w-64 h-64 bg-accent/10 rounded-full blur-3xl -z-0" />
           <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-black/5 rounded-full blur-2xl -z-0" />
         </motion.div>
@@ -657,7 +673,11 @@ const Trust = () => {
       <div className="flex overflow-hidden">
         <motion.div 
           animate={{ x: [0, -1000] }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          transition={{ 
+            duration: 30, 
+            repeat: Infinity, 
+            ease: "linear" 
+          }}
           className="flex gap-16 items-center whitespace-nowrap"
         >
           {[...logos, ...logos].map((logo, idx) => (
@@ -729,7 +749,9 @@ const Features = () => {
               </div>
               <div className="space-y-3">
                 <h3 className="text-xl font-bold">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm">{item.desc}</p>
+                <p className="text-muted-foreground leading-relaxed text-sm">
+                  {item.desc}
+                </p>
               </div>
             </motion.div>
           ))}
@@ -765,6 +787,7 @@ const HowItWorks = () => {
 
   return (
     <section id="process" className="py-24 px-6 bg-[#0B0B0B] text-white overflow-hidden relative">
+      {/* Subtle Pattern Background */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       
       <div className="max-w-7xl mx-auto space-y-20 relative z-10">
@@ -807,7 +830,9 @@ const HowItWorks = () => {
               </div>
               <div className="space-y-3">
                 <h3 className="text-xl font-bold group-hover:text-accent transition-colors duration-300">{step.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">{step.desc}</p>
+                <p className="text-zinc-400 text-sm leading-relaxed">
+                  {step.desc}
+                </p>
               </div>
             </motion.div>
           ))}
@@ -816,6 +841,7 @@ const HowItWorks = () => {
     </section>
   );
 };
+
 
 const ToolDiscovery = () => {
   const [user, setUser] = React.useState<FirebaseUser | null>(null);
@@ -830,24 +856,29 @@ const ToolDiscovery = () => {
     { name: "FlowGenie", cat: "Operations", use: "Autonomous revenue operations and workflow orchestration.", status: "Agency", highlight: true, url: "#" },
     { name: "SalesBridge", cat: "Sales", use: "Lead-to-deal pipeline orchestration with AI nurturing.", status: "Agency", highlight: true, url: "#" },
     { name: "DeepEnrich", cat: "Data", use: "Precision lead data enrichment utilizing neural scrapers.", status: "Agency", highlight: true, url: "#" },
-    // LLMs
+    
+    // Large Language Models
     { name: "GPT-4o", cat: "Intelligence", use: "Multi-modal foundation model for complex reasoning and logic.", status: "External", url: "https://chatgpt.com" },
     { name: "Claude 3.5 Sonnet", cat: "Intelligence", use: "High-accuracy LLM focused on coding and creative writing.", status: "External", url: "https://claude.ai" },
     { name: "Gemini 1.5 Pro", cat: "Intelligence", use: "Massive context window AI for enterprise-scale data analysis.", status: "External", url: "https://gemini.google.com" },
+    
     // Productivity & Creative
     { name: "Midjourney v6", cat: "Creative", use: "State-of-the-art photorealistic image generation workflows.", status: "External", url: "https://midjourney.com" },
     { name: "Jasper", cat: "Marketing", use: "Enterprise-grade content generation for scaling brand voice.", status: "External", url: "https://jasper.ai" },
     { name: "Canva Magic", cat: "Creative", use: "AI-powered design suite for instant visual asset creation.", status: "External", url: "https://canva.com" },
     { name: "Notion AI", cat: "Productivity", use: "Integrated workspace intelligence for docs and project management.", status: "External", url: "https://notion.ai" },
+    
     // Agents & Automation
     { name: "Zapier Central", cat: "Operations", use: "Autonomous agents that connect with 6000+ business apps.", status: "External", url: "https://zapier.com" },
     { name: "AutoGPT", cat: "Agents", use: "Semi-autonomous agent framework for multi-step task completion.", status: "OpenSource", url: "https://github.com/Significant-Gravitas/AutoGPT" },
     { name: "Make", cat: "Operations", use: "Advanced visual automation platform for complex integrations.", status: "External", url: "https://make.com" },
+    
     // Search & Data
     { name: "Perplexity", cat: "Search", use: "Real-time answer engine with cited sources and logic checks.", status: "External", url: "https://perplexity.ai" },
     { name: "Tableau AI", cat: "Data", use: "Predictive analytics and automated data storytelling for ROI.", status: "External", url: "https://tableau.com" },
     { name: "Copy.ai", cat: "Marketing", use: "GTM (Go-to-Market) automation platform for sales teams.", status: "External", url: "https://copy.ai" },
-    // Coding
+    
+    // Coding & Development
     { name: "Cursor", cat: "Development", use: "AI-native IDE that understands entire codebases natively.", status: "External", url: "https://cursor.com" },
     { name: "GitHub Copilot", cat: "Development", use: "The world's most widely adopted AI pair programmer.", status: "External", url: "https://github.com/features/copilot" }
   ];
@@ -976,7 +1007,9 @@ const ToolDiscovery = () => {
                           </div>
                           <div className="space-y-2">
                             <h3 className="text-lg font-extrabold group-hover:text-accent transition-colors">{tool.name}</h3>
-                            <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">{tool.use}</p>
+                            <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">
+                              {tool.use}
+                            </p>
                           </div>
                         </div>
                         <div className="mt-8 pt-4 border-t border-zinc-50 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest group-hover:text-accent transition-colors">
@@ -1022,7 +1055,6 @@ const Contact = () => {
   const [feedback, setFeedback] = React.useState("");
   const [user, setUser] = React.useState<FirebaseUser | null>(null);
 
-  // FIX 3: Removed the duplicate onAuthStateChanged useEffect — only one subscription needed
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
@@ -1075,6 +1107,7 @@ const Contact = () => {
 
   return (
     <section id="contact" className="py-32 px-6 bg-white relative overflow-hidden">
+      {/* Background Decor */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-zinc-50/50 -z-0" />
       
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-20 relative z-10">
@@ -1173,10 +1206,7 @@ const Contact = () => {
             )}
           </AnimatePresence>
 
-          <form 
-            className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-500", status === 'success' && "opacity-0 invisible scale-95")} 
-            onSubmit={handleSubmit}
-          >
+          <form className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-500", status === 'success' && "opacity-0 invisible scale-95")} onSubmit={handleSubmit}>
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Contact Name</label>
               <Input id="name" value={formData.name} onChange={handleChange} required placeholder="Lead Contact" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
@@ -1202,7 +1232,7 @@ const Contact = () => {
               <select 
                 id="projectType" 
                 value={formData.projectType} 
-                onChange={handleChange}
+                onChange={handleChange as any}
                 className="w-full rounded-xl h-14 border border-zinc-100 bg-zinc-50/30 focus:outline-none focus:border-black/20 px-5 font-bold text-sm appearance-none cursor-pointer"
               >
                 {projectTypes.map(t => <option key={t} value={t}>{t}</option>)}
@@ -1214,7 +1244,7 @@ const Contact = () => {
               <select 
                 id="urgency" 
                 value={formData.urgency} 
-                onChange={handleChange}
+                onChange={handleChange as any}
                 className="w-full rounded-xl h-14 border border-zinc-100 bg-zinc-50/30 focus:outline-none focus:border-black/20 px-5 font-bold text-sm appearance-none cursor-pointer"
               >
                 {urgencyLevels.map(u => <option key={u} value={u}>{u}</option>)}
@@ -1239,9 +1269,7 @@ const Contact = () => {
             </div>
             
             <div className="md:col-span-2 pt-4">
-              {status === 'error' && (
-                <p className="text-[11px] text-red-500 font-bold mb-4 bg-red-50 p-3 rounded-lg border border-red-100">{feedback}</p>
-              )}
+              {status === 'error' && <p className="text-[11px] text-red-500 font-bold mb-4 bg-red-50 p-3 rounded-lg border border-red-100">{feedback}</p>}
               <Button 
                 type="submit" 
                 disabled={status === 'loading'} 
@@ -1268,7 +1296,6 @@ const Contact = () => {
 
 const Footer = () => {
   return (
-    // FIX 4: Changed hover:text-black → hover:text-white for social icons on dark background
     <footer className="py-16 md:py-20 px-4 md:px-6 border-t border-zinc-800 bg-[#0B0B0B] text-zinc-400">
       <div className="max-w-7xl mx-auto space-y-12 md:space-y-16">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-12">
@@ -1297,12 +1324,12 @@ const Footer = () => {
           <div className="space-y-4">
             <h4 className="text-xs font-bold uppercase tracking-widest text-white">Office</h4>
             <p className="text-sm text-zinc-500 leading-relaxed">
-              Based in India.<br/>
+              Based in Singapore.<br/>
               Serving high-performance teams worldwide.
             </p>
             <div className="flex items-center gap-2 text-sm text-accent font-bold">
               <Mail className="w-4 h-4" />
-              <span>opsiyss@gmail.com</span>
+              <span>hello@opsiys.com</span>
             </div>
           </div>
         </div>
@@ -1312,9 +1339,9 @@ const Footer = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6 text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-zinc-600 text-center md:text-left">
           <p>© 2026 OPSIYS SYSTEMS INC. ALL RIGHTS RESERVED.</p>
           <div className="flex gap-4 md:gap-8">
-            <a href="#" className="hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="hover:text-white transition-colors">Terms</a>
-            <a href="#" className="hover:text-white transition-colors">Cookies</a>
+            <a href="#" className="hover:text-white">Privacy</a>
+            <a href="#" className="hover:text-white">Terms</a>
+            <a href="#" className="hover:text-white">Cookies</a>
           </div>
         </div>
       </div>
