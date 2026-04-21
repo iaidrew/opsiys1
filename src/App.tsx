@@ -80,7 +80,21 @@ const Logo = () => (
   </div>
 );
 
-const Navbar = ({ user, handleSignIn, logout, profile }: { user: any, handleSignIn: any, logout: any, profile: any }) => {
+const Navbar = ({ 
+  user, 
+  handleSignIn, 
+  logout, 
+  profile, 
+  onOpenSettings, 
+  onOpenHistory 
+}: { 
+  user: any, 
+  handleSignIn: any, 
+  logout: any, 
+  profile: any,
+  onOpenSettings: () => void,
+  onOpenHistory: () => void
+}) => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const [portalOpen, setPortalOpen] = React.useState(false);
@@ -175,11 +189,27 @@ const Navbar = ({ user, handleSignIn, logout, profile }: { user: any, handleSign
                       <div className="py-2 space-y-1">
                         <Button 
                           variant="ghost" 
-                          onClick={() => { logout(); setPortalOpen(false); }}
-                          className="w-full justify-start text-[9px] font-extrabold uppercase tracking-widest h-9 hover:bg-zinc-50 rounded-xl"
+                          onClick={() => { onOpenHistory(); setPortalOpen(false); }}
+                          className="w-full justify-start text-[9px] font-extrabold uppercase tracking-widest h-9 hover:bg-emerald-50 rounded-xl group"
                         >
-                          <LogOut size={12} className="mr-2" /> Sign Out
+                          <LineChart size={12} className="mr-2 group-hover:text-emerald-600" /> Project History
                         </Button>
+                        <Button 
+                          variant="ghost" 
+                          onClick={() => { onOpenSettings(); setPortalOpen(false); }}
+                          className="w-full justify-start text-[9px] font-extrabold uppercase tracking-widest h-9 hover:bg-blue-50 rounded-xl group"
+                        >
+                          <User size={12} className="mr-2 group-hover:text-blue-600" /> Account Settings
+                        </Button>
+                        <div className="pt-1 mt-1 border-t border-zinc-50">
+                          <Button 
+                            variant="ghost" 
+                            onClick={() => { logout(); setPortalOpen(false); }}
+                            className="w-full justify-start text-[9px] font-extrabold uppercase tracking-widest h-9 hover:bg-red-50 text-red-600 rounded-xl"
+                          >
+                            <LogOut size={12} className="mr-2" /> Sign Out
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -201,7 +231,7 @@ const Navbar = ({ user, handleSignIn, logout, profile }: { user: any, handleSign
                 size="sm" 
                 className="rounded-full px-6 h-8 sm:h-9 transition-all duration-500 font-bold text-[11px] uppercase tracking-wider bg-white text-black hover:bg-zinc-200"
               >
-                Start
+                Book a Call
               </Button>
             </a>
             
@@ -268,6 +298,29 @@ const Navbar = ({ user, handleSignIn, logout, profile }: { user: any, handleSign
                   )
                 ))}
               </div>
+
+              {user && (
+                <div className="pt-8 border-t border-white/10 flex flex-col items-center gap-6 w-full">
+                  <button 
+                    onClick={() => { onOpenHistory(); setIsOpen(false); }}
+                    className="flex items-center gap-4 text-2xl font-bold uppercase text-zinc-500 hover:text-white transition-colors"
+                  >
+                    <LineChart size={24} /> History
+                  </button>
+                  <button 
+                    onClick={() => { onOpenSettings(); setIsOpen(false); }}
+                    className="flex items-center gap-4 text-2xl font-bold uppercase text-zinc-500 hover:text-white transition-colors"
+                  >
+                    <User size={24} /> Settings
+                  </button>
+                  <button 
+                    onClick={() => { logout(); setIsOpen(false); }}
+                    className="flex items-center gap-4 text-2xl font-bold uppercase text-red-500 hover:text-red-400 transition-colors"
+                  >
+                    <LogOut size={24} /> Sign Out
+                  </button>
+                </div>
+              )}
               
               <div className="pt-12 border-t border-white/10 flex flex-col items-center gap-6">
                 <a href="/#contact" onClick={() => setIsOpen(false)} className="w-full">
@@ -352,7 +405,14 @@ const AuthPortal = () => {
 
   return (
     <>
-      <Navbar user={user} handleSignIn={handleSignIn} logout={logout} profile={profile} />
+      <Navbar 
+        user={user} 
+        handleSignIn={handleSignIn} 
+        logout={logout} 
+        profile={profile} 
+        onOpenSettings={() => setShowSettings(true)}
+        onOpenHistory={() => setShowHistory(true)}
+      />
       
       {/* Settings Modal */}
       <AnimatePresence>
