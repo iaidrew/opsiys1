@@ -17,6 +17,7 @@ import {
   LineChart, 
   Workflow,
   CheckCircle2,
+  Menu,
   X,
   Mail,
   User,
@@ -80,6 +81,7 @@ const Logo = () => (
 );
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const location = useLocation();
   const isAboutPage = location.pathname === "/about";
@@ -119,15 +121,15 @@ const Navbar = () => {
             <Logo />
           </Link>
 
-          {/* Horizontal Links (Mobile & Desktop) */}
-          <div className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto no-scrollbar">
+          {/* Table (Desktop) */}
+          <div className="hidden md:flex items-center gap-1 overflow-x-auto no-scrollbar">
             {navItems.map((item) => (
               item.href.startsWith("/") ? (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "px-2 sm:px-4 py-2 text-[9px] sm:text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full shrink-0",
+                    "px-4 py-2 text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full shrink-0",
                     "text-zinc-400 hover:text-white hover:bg-white/10"
                   )}
                 >
@@ -138,7 +140,7 @@ const Navbar = () => {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "px-2 sm:px-4 py-2 text-[9px] sm:text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full shrink-0",
+                    "px-4 py-2 text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full shrink-0",
                     "text-zinc-400 hover:text-white hover:bg-white/10"
                   )}
                 >
@@ -148,22 +150,92 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* CTA / Book a Call (Always visible on sm+, adjusted for mobile) */}
+          {/* Right Section */}
           <div className="flex items-center gap-1 sm:gap-2 pr-1.5 shrink-0">
-            <a href="/#contact" className="block transition-all">
+            <a href="/#contact" className="hidden sm:block transition-all">
               <Button 
                 size="sm" 
-                className={cn(
-                  "rounded-full px-3 sm:px-6 h-8 sm:h-9 transition-all duration-500 font-bold text-[9px] sm:text-[11px] uppercase tracking-wider",
-                  "bg-white text-black hover:bg-zinc-200"
-                )}
+                className="rounded-full px-6 h-8 sm:h-9 transition-all duration-500 font-bold text-[11px] uppercase tracking-wider bg-white text-black hover:bg-zinc-200"
               >
-                Book <span className="hidden xs:inline">a Call</span>
+                Book a Call
               </Button>
             </a>
+            
+            {/* Mobile Toggle */}
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setIsOpen(!isOpen)}
+              className="md:hidden w-10 h-10 rounded-full text-white hover:bg-white/10 hover:text-white shrink-0"
+            >
+              {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
           </div>
         </motion.nav>
       </div>
+
+      {/* Mobile Overlay Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            animate={{ opacity: 1, backdropFilter: "blur(24px)" }}
+            exit={{ opacity: 0, backdropFilter: "blur(0px)" }}
+            className="fixed inset-0 z-[55] bg-black/90 flex items-center justify-center p-6 md:hidden"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="w-full max-w-sm space-y-12"
+            >
+              <div className="flex flex-col items-center gap-8">
+                {navItems.map((item, idx) => (
+                   item.href.startsWith("/") ? (
+                    <Link
+                      key={item.name}
+                      to={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className="text-4xl font-extrabold uppercase tracking-tighter text-zinc-500 hover:text-white transition-colors"
+                    >
+                      <motion.span
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: idx * 0.1 }}
+                      >
+                        {item.name}
+                      </motion.span>
+                    </Link>
+                  ) : (
+                    <a
+                      key={item.name}
+                      href={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className="text-4xl font-extrabold uppercase tracking-tighter text-zinc-500 hover:text-white transition-colors"
+                    >
+                      <motion.span
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ delay: idx * 0.1 }}
+                      >
+                        {item.name}
+                      </motion.span>
+                    </a>
+                  )
+                ))}
+              </div>
+              
+              <div className="pt-12 border-t border-white/10 flex flex-col items-center gap-6">
+                <a href="/#contact" onClick={() => setIsOpen(false)} className="w-full">
+                  <Button className="w-full h-16 rounded-none bg-white text-black font-bold text-lg uppercase tracking-widest hover:bg-zinc-200">
+                    Book Discovery Call
+                  </Button>
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
@@ -941,15 +1013,15 @@ const ToolDiscovery = () => {
             variants={staggerContainer}
             initial="initial"
             whileInView="animate"
-            viewport={{ once: true, margin: "-50px" }}
+            viewport={{ once: true, margin: "0px" }}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 relative min-h-[300px]"
           >
             {!user && (
               <div className="absolute inset-0 z-20 bg-white/30 backdrop-blur-[12px] flex items-center justify-center p-6 rounded-none overflow-hidden">
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.8, y: 30 }}
+                  initial={{ opacity: 0, scale: 0.9, y: 20 }}
                   whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-100px" }}
+                  viewport={{ once: true, margin: "100px" }}
                   transition={{ duration: 0.5, ease: "circOut" }}
                   className="bg-white p-8 md:p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-black/5 text-center max-w-[320px] md:max-w-md space-y-6 md:space-y-8 relative"
                 >
