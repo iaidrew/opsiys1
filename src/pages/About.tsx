@@ -93,22 +93,22 @@ const ServicesGrid = () => {
 const TeamSection = () => {
   const team = [
     {
-      name: "Aditya",
+      name: "Aditya Gupta",
       role: "Founder",
       desc: "Leads product vision and technical direction.",
-      image: "/aditya.jpg" // REPLACE: Place aditya.jpg in public/ folder
+      image: "/assets/aditya.jpeg" // REPLACE: Place aditya.jpg in public/ folder
     },
     {
-      name: "Alex Reed",
+      name: "Krishna Kumar",
       role: "Co-Founder",
       desc: "Focuses on operations and tactical scaling.",
-      image: "/alex.jpg" // REPLACE: Place alex.jpg in public/ folder
+      image: "/assets/krishna.jpeg" // REPLACE: Place alex.jpg in public/ folder
     },
     {
-      name: "Sarah Chen",
-      role: "Creative Head",
+      name: "Nitesh Singh",
+      role: "Creatives and Media Head",
       desc: "Handles branding and media presence.",
-      image: "/sarah.jpg" // REPLACE: Place sarah.jpg in public/ folder
+      image: "/assets/nitesh.jpeg" // REPLACE: Place sarah.jpg in public/ folder
     }
   ];
 
@@ -165,7 +165,7 @@ export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white text-[#0B0B0B] font-sans selection:bg-accent selection:text-white">
       {/* Hero Section */}
-      <section className="relative pt-32 pb-24 px-6 sm:px-10 overflow-hidden min-h-[70vh] flex items-center">
+      <section className="relative pt-28 pb-16 md:pt-32 md:pb-24 px-6 sm:px-10 overflow-hidden min-h-[70vh] flex items-center">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-accent/5 blur-[120px] pointer-events-none" />
         
         <div className="max-w-7xl mx-auto w-full">
@@ -200,7 +200,7 @@ export default function AboutPage() {
       </section>
 
       {/* Identity Section */}
-      <section className="py-32 px-6 sm:px-10 border-y border-zinc-100 bg-zinc-50/50">
+      <section className="py-16 md:py-32 px-6 sm:px-10 border-y border-zinc-100 bg-zinc-50/50">
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -242,7 +242,7 @@ export default function AboutPage() {
       </section>
 
       {/* Services Section */}
-      <section className="py-32 px-6 sm:px-10 bg-white">
+      <section className="py-16 md:py-32 px-6 sm:px-10 bg-white">
         <div className="max-w-7xl mx-auto space-y-20">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-12">
             <div className="space-y-6">
@@ -261,7 +261,7 @@ export default function AboutPage() {
       </section>
 
       {/* Team Section */}
-      <section className="py-32 px-6 sm:px-10 bg-zinc-50/50 border-y border-zinc-100">
+      <section className="py-16 md:py-32 px-6 sm:px-10 bg-zinc-50/50 border-y border-zinc-100">
         <div className="max-w-7xl mx-auto space-y-24">
           <div className="space-y-6">
             <h2 className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] flex items-center gap-3">
@@ -275,7 +275,7 @@ export default function AboutPage() {
       </section>
 
       {/* Philosophy Section */}
-      <section className="py-32 px-6 sm:px-10 bg-white overflow-hidden relative">
+      <section className="py-16 md:py-32 px-6 sm:px-10 bg-white overflow-hidden relative">
         <div className="max-w-7xl mx-auto flex flex-col items-center text-center space-y-16">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -299,7 +299,7 @@ export default function AboutPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-40 px-6 sm:px-10 bg-[#0B0B0B] text-white overflow-hidden relative">
+      <section className="py-24 md:py-40 px-6 sm:px-10 bg-[#0B0B0B] text-white overflow-hidden relative">
         <div className="absolute top-0 right-0 w-96 h-96 bg-accent/10 blur-[120px] -mr-48 -mt-48" />
         <div className="max-w-4xl mx-auto text-center space-y-16 relative z-10">
           <motion.h2 
@@ -323,11 +323,6 @@ export default function AboutPage() {
           </a>
         </div>
       </section>
-
-      {/* Footer Mini */}
-      <footer className="py-16 bg-white border-t border-zinc-100 text-center text-[10px] font-bold uppercase tracking-[0.5em] text-zinc-300">
-        &copy; 2026 OPSIYS Operational Logic.
-      </footer>
     </div>
   );
 }

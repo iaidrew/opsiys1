@@ -17,7 +17,6 @@ import {
   LineChart, 
   Workflow,
   CheckCircle2,
-  Menu,
   X,
   Mail,
   User,
@@ -81,7 +80,6 @@ const Logo = () => (
 );
 
 const Navbar = () => {
-  const [isOpen, setIsOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
   const location = useLocation();
   const isAboutPage = location.pathname === "/about";
@@ -121,15 +119,15 @@ const Navbar = () => {
             <Logo />
           </Link>
 
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Horizontal Links (Mobile & Desktop) */}
+          <div className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto no-scrollbar">
             {navItems.map((item) => (
               item.href.startsWith("/") ? (
                 <Link
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    "px-4 py-2 text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full",
+                    "px-2 sm:px-4 py-2 text-[9px] sm:text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full shrink-0",
                     "text-zinc-400 hover:text-white hover:bg-white/10"
                   )}
                 >
@@ -140,7 +138,7 @@ const Navbar = () => {
                   key={item.name}
                   href={item.href}
                   className={cn(
-                    "px-4 py-2 text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full",
+                    "px-2 sm:px-4 py-2 text-[9px] sm:text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full shrink-0",
                     "text-zinc-400 hover:text-white hover:bg-white/10"
                   )}
                 >
@@ -150,104 +148,22 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* CTA / Mobile Toggle */}
-          <div className="flex items-center gap-1.5 md:gap-2 pr-1.5">
-            <a href="/#contact" className={cn("hidden sm:block transition-all")}>
+          {/* CTA / Book a Call (Always visible on sm+, adjusted for mobile) */}
+          <div className="flex items-center gap-1 sm:gap-2 pr-1.5 shrink-0">
+            <a href="/#contact" className="block transition-all">
               <Button 
                 size="sm" 
                 className={cn(
-                  "rounded-full px-6 h-9 transition-all duration-500 font-bold text-[11px] uppercase tracking-wider",
+                  "rounded-full px-3 sm:px-6 h-8 sm:h-9 transition-all duration-500 font-bold text-[9px] sm:text-[11px] uppercase tracking-wider",
                   "bg-white text-black hover:bg-zinc-200"
                 )}
               >
-                Book a Call
+                Book <span className="hidden xs:inline">a Call</span>
               </Button>
             </a>
-
-            <button 
-              className={cn(
-                "md:hidden w-9 h-9 flex items-center justify-center rounded-full shrink-0 transition-all duration-500",
-                scrolled ? "bg-white text-black" : "bg-black text-white"
-              )}
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              {isOpen ? <X size={16} /> : <Menu size={16} />}
-            </button>
           </div>
         </motion.nav>
       </div>
-
-      {/* Modern Fullscreen/Overlay Menu for Mobile */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="fixed inset-0 z-[60] bg-black p-6 md:hidden flex flex-col justify-center"
-          >
-            <button 
-              className="absolute top-8 right-8 text-white p-2 border border-white/20 rounded-full"
-              onClick={() => setIsOpen(false)}
-            >
-              <X size={24} />
-            </button>
-            <div className="flex flex-col gap-8">
-              {navItems.map((item, idx) => (
-                item.href.startsWith("/") ? (
-                  <motion.div
-                    key={item.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                  >
-                    <Link 
-                      to={item.href}
-                      onClick={() => setIsOpen(false)}
-                      className="text-4xl font-extrabold text-white tracking-tighter hover:text-accent transition-colors block"
-                    >
-                      {item.name}
-                    </Link>
-                  </motion.div>
-                ) : (
-                  <motion.a 
-                    key={item.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: idx * 0.1 }}
-                    href={item.href}
-                    onClick={() => setIsOpen(false)}
-                    className="text-4xl font-extrabold text-white tracking-tighter hover:text-accent transition-colors"
-                  >
-                    {item.name}
-                  </motion.a>
-                )
-              ))}
-              <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <a href="/#contact" onClick={() => setIsOpen(false)}>
-                  <Button className="w-full bg-white text-black hover:bg-accent hover:text-white rounded-none py-8 text-xl font-bold">
-                    Book a Call
-                  </Button>
-                </a>
-              </motion.div>
-            </div>
-            
-            <div className="absolute bottom-12 left-6 right-6 flex justify-between items-end border-t border-white/10 pt-8">
-              <div className="text-white/40 text-xs font-bold tracking-widest uppercase">
-                OPSIYS Systems © 2026
-              </div>
-              <div className="flex gap-4">
-                <Twitter className="text-white/40" size={20} />
-                <Linkedin className="text-white/40" size={20} />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   );
 };
@@ -564,7 +480,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="pt-24 pb-16 lg:pt-56 lg:pb-40 px-4 md:px-6 overflow-hidden bg-[#FAFAFA] relative">
+    <section className="pt-28 pb-12 md:pt-56 md:pb-40 px-4 md:px-6 overflow-hidden bg-[#FAFAFA] relative">
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none" 
         style={{ 
@@ -718,7 +634,7 @@ const Trust = () => {
   const logos = ["LINEAR", "VERCEL", "STRIPE", "REPLICATE", "LANCER", "ANTHROPIC", "OPENAI", "NOTION"];
   
   return (
-    <section className="py-12 border-y border-border bg-white overflow-hidden relative">
+    <section className="py-10 border-y border-border bg-white overflow-hidden relative">
       <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-white to-transparent z-10" />
       <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-white to-transparent z-10" />
       
@@ -774,7 +690,7 @@ const Features = () => {
   ];
 
   return (
-    <section id="systems" className="py-24 sm:py-32 px-6 sm:px-10 bg-white overflow-hidden">
+    <section id="systems" className="py-16 md:py-32 px-6 sm:px-10 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto space-y-16 md:space-y-24">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
           <motion.div 
@@ -864,7 +780,7 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section id="process" className="py-24 sm:py-32 px-6 sm:px-10 bg-[#0B0B0B] text-white overflow-hidden relative">
+    <section id="process" className="py-16 md:py-32 px-6 sm:px-10 bg-[#0B0B0B] text-white overflow-hidden relative">
       {/* Subtle Pattern Background */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       
@@ -983,22 +899,22 @@ const ToolDiscovery = () => {
   const categories = ["All", "Proprietary", "Intelligence", "Operations", "Sales", "Creative", "Data", "Development"];
 
   return (
-    <section id="discovery" className="py-24 sm:py-32 px-6 sm:px-10 bg-white overflow-hidden">
+    <section id="discovery" className="py-16 md:py-32 px-6 sm:px-10 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="text-center space-y-4">
-          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight uppercase">AI Tool Discovery</h2>
+          <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight uppercase">AI Tool Discovery</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
-            A curated repository of state-of-the-art AI systems. From proprietary agency workflows to global foundation models, we help you discover and integrate the right logic into your stack.
+            A curated repository of state-of-the-art AI systems and proprietary workflows.
           </p>
         </div>
 
-        <div className="space-y-12">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center justify-between items-center bg-zinc-50 p-4 md:p-6 rounded-none border border-zinc-100">
+        <div className="space-y-8 md:space-y-12">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between items-center bg-zinc-50 p-4 md:p-6 rounded-none border border-zinc-100">
             <div className="relative w-full max-w-xl">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <Input 
-                placeholder="Search by tool name, use case, or stack category..." 
-                className="pl-12 py-7 rounded-none border-zinc-200 focus:border-black focus-visible:ring-0 transition-all bg-white"
+                placeholder="Search tools..." 
+                className="pl-12 py-5 md:py-7 rounded-none border-zinc-200 focus:border-black focus-visible:ring-0 transition-all bg-white"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -1011,7 +927,7 @@ const ToolDiscovery = () => {
                     <TabsTrigger 
                       key={cat} 
                       value={cat.toLowerCase()} 
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:text-black data-[state=active]:shadow-none px-6 py-4 font-bold uppercase tracking-widest text-[9px] text-zinc-400 hover:text-black transition-colors"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:text-black data-[state=active]:shadow-none px-4 md:px-6 py-3 md:py-4 font-bold uppercase tracking-widest text-[8px] md:text-[9px] text-zinc-400 hover:text-black transition-colors"
                     >
                       {cat}
                     </TabsTrigger>
@@ -1026,17 +942,26 @@ const ToolDiscovery = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, margin: "-50px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 relative min-h-[400px]"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 relative min-h-[300px]"
           >
             {!user && (
-              <div className="absolute inset-0 z-20 bg-white/40 backdrop-blur-[6px] flex items-center justify-center p-6 rounded-xl overflow-hidden border border-zinc-100">
-                <div className="bg-white p-8 md:p-10 shadow-[0_32px_64px_-15px_rgba(0,0,0,0.2)] border border-black/5 text-center max-w-sm space-y-6 relative">
-                  <div className="w-16 h-16 bg-black text-white rounded-full flex items-center justify-center mx-auto shadow-xl ring-8 ring-black/5">
-                    <LogIn size={28} />
+              <div className="absolute inset-0 z-20 bg-white/30 backdrop-blur-[12px] flex items-center justify-center p-6 rounded-none overflow-hidden">
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8, y: 30 }}
+                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  transition={{ duration: 0.5, ease: "circOut" }}
+                  className="bg-white p-8 md:p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-black/5 text-center max-w-[320px] md:max-w-md space-y-6 md:space-y-8 relative"
+                >
+                  <div className="w-16 h-16 md:w-20 md:h-20 bg-black text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                    <LogIn size={28} className="md:hidden" />
+                    <LogIn size={32} className="hidden md:block" />
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="font-extrabold text-2xl tracking-tighter uppercase">Agency Access Only</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">Unlock the full technical repository and logic roadmaps for our proprietary automation stack.</p>
+                  <div className="space-y-3">
+                    <h3 className="font-extrabold text-2xl md:text-3xl tracking-tighter uppercase leading-tight text-black">Login to Unlock Access</h3>
+                    <p className="text-xs md:text-base text-muted-foreground leading-relaxed font-medium">
+                      Unlock proprietary codebases, logic roadmaps, and the full capability of our AI automation tools.
+                    </p>
                   </div>
                   <Button 
                     onClick={async () => {
@@ -1047,11 +972,14 @@ const ToolDiscovery = () => {
                         console.error(error);
                       }
                     }} 
-                    className="w-full bg-black hover:bg-zinc-800 text-white rounded-none py-8 font-bold text-lg transition-all shadow-lg active:scale-95"
+                    className="w-full bg-black hover:bg-zinc-800 text-white rounded-none py-7 md:py-9 font-bold text-base md:text-lg transition-all shadow-lg active:scale-95 uppercase tracking-widest"
                   >
-                    Connect Google Account
+                    Connect with Google
                   </Button>
-                </div>
+                  <div className="pt-2">
+                    <p className="text-[10px] font-bold text-zinc-300 uppercase tracking-[0.3em]">Agency Only Infrastructure</p>
+                  </div>
+                </motion.div>
               </div>
             )}
             <AnimatePresence mode="popLayout">
@@ -1069,30 +997,30 @@ const ToolDiscovery = () => {
                     className="h-full block"
                   >
                     <Card className={cn(
-                      "rounded-none border-zinc-100 hover:border-black transition-all duration-500 cursor-pointer group h-full flex flex-col",
+                      "rounded-none border-zinc-100 hover:border-black transition-all duration-500 cursor-pointer group h-full flex flex-col shadow-none hover:shadow-xl hover:shadow-black/[0.02]",
                       tool.highlight ? "bg-zinc-50/50 ring-1 ring-black/5 shadow-sm" : ""
                     )}>
-                      <CardContent className="p-6 flex flex-col justify-between h-full">
-                        <div className="space-y-4">
+                      <CardContent className="p-5 md:p-6 flex flex-col justify-between h-full">
+                        <div className="space-y-3 md:space-y-4">
                           <div className="flex justify-between items-start">
-                            <Badge variant={tool.highlight ? "default" : "secondary"} className="rounded-none uppercase text-[9px] font-bold tracking-widest px-2">
+                            <Badge variant={tool.highlight ? "default" : "secondary"} className="rounded-none uppercase text-[8px] md:text-[9px] font-bold tracking-widest px-2">
                               {tool.cat}
                             </Badge>
                             <span className={cn(
-                              "text-[10px] font-bold uppercase tracking-tight",
+                              "text-[9px] md:text-[10px] font-bold uppercase tracking-tight",
                               tool.status === 'Agency' ? "text-accent" : "text-muted-foreground"
                             )}>
                               {tool.status}
                             </span>
                           </div>
-                          <div className="space-y-2">
-                            <h3 className="text-lg font-extrabold group-hover:text-accent transition-colors">{tool.name}</h3>
-                            <p className="text-muted-foreground text-xs leading-relaxed line-clamp-3">
+                          <div className="space-y-1 md:space-y-2">
+                            <h3 className="text-base md:text-lg font-extrabold group-hover:text-accent transition-colors uppercase tracking-tight leading-tight">{tool.name}</h3>
+                            <p className="text-muted-foreground text-[11px] md:text-xs leading-relaxed line-clamp-2 md:line-clamp-3">
                               {tool.use}
                             </p>
                           </div>
                         </div>
-                        <div className="mt-8 pt-4 border-t border-zinc-50 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest group-hover:text-accent transition-colors">
+                        <div className="mt-6 md:mt-8 pt-4 border-t border-zinc-50 flex items-center justify-between text-[8px] md:text-[10px] font-bold uppercase tracking-widest group-hover:text-accent transition-colors">
                           <span>{tool.status === 'Agency' ? 'Technical Specs' : 'Visit Platform'}</span>
                           <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </div>
@@ -1108,10 +1036,10 @@ const ToolDiscovery = () => {
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="text-center py-32 border-2 border-dashed border-zinc-100 text-muted-foreground bg-zinc-50/30"
+              className="text-center py-20 md:py-32 border-2 border-dashed border-zinc-100 text-muted-foreground bg-zinc-50/30"
             >
-              <Search className="w-12 h-12 mx-auto mb-4 opacity-10" />
-              <p className="text-sm font-medium">No systems matching "{search}" in {activeTab}</p>
+              <Search className="w-10 h-10 md:w-12 md:h-12 mx-auto mb-4 opacity-10" />
+              <p className="text-xs md:text-sm font-medium">No matches found for "{search}"</p>
             </motion.div>
           )}
         </div>
@@ -1186,7 +1114,7 @@ const Contact = () => {
   const urgencyLevels = ["High (Immediate)", "Medium (1-4 weeks)", "Low (Planning)"];
 
   return (
-    <section id="contact" className="py-32 px-6 bg-white relative overflow-hidden">
+    <section id="contact" className="py-16 md:py-32 px-6 bg-white relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-zinc-50/50 -z-0" />
       
@@ -1376,25 +1304,25 @@ const Contact = () => {
 
 const Footer = () => {
   return (
-    <footer className="py-16 md:py-20 px-4 md:px-6 border-t border-zinc-800 bg-[#0B0B0B] text-zinc-400">
+    <footer className="py-12 md:py-20 px-6 sm:px-10 border-t border-zinc-800 bg-[#0B0B0B] text-zinc-400">
       <div className="max-w-7xl mx-auto space-y-12 md:space-y-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10 md:gap-12">
-          <div className="col-span-1 md:col-span-2 space-y-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-12">
+          <div className="col-span-2 md:col-span-2 space-y-6">
             <Logo />
-            <p className="text-zinc-500 text-sm leading-relaxed max-w-sm">
+            <p className="text-zinc-500 text-xs md:text-sm leading-relaxed max-w-sm">
               The premier AI automation agency for high-growth businesses. Building systems that scale while you sleep.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Twitter size={20} /></a>
-              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Github size={20} /></a>
-              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Linkedin size={20} /></a>
+              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Twitter size={18} className="md:size-5" /></a>
+              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Github size={18} className="md:size-5" /></a>
+              <a href="#" className="text-zinc-500 hover:text-white transition-colors"><Linkedin size={18} className="md:size-5" /></a>
             </div>
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-white">Navigation</h4>
-            <div className="flex flex-col gap-3 text-sm text-zinc-500 font-medium">
-              <a href="#" className="hover:text-white transition-colors">Home</a>
+            <h4 className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white">Navigation</h4>
+            <div className="flex flex-col gap-2 md:gap-3 text-xs md:text-sm text-zinc-500 font-medium font-mono uppercase tracking-tight">
+              <Link to="/" className="hover:text-white transition-colors">Home</Link>
               <a href="#systems" className="hover:text-white transition-colors">Systems</a>
               <a href="#process" className="hover:text-white transition-colors">Process</a>
               <a href="#discovery" className="hover:text-white transition-colors">Discovery</a>
@@ -1402,14 +1330,16 @@ const Footer = () => {
           </div>
 
           <div className="space-y-4">
-            <h4 className="text-xs font-bold uppercase tracking-widest text-white">Office</h4>
-            <p className="text-sm text-zinc-500 leading-relaxed">
-              Based in Singapore.<br/>
-              Serving high-performance teams worldwide.
-            </p>
-            <div className="flex items-center gap-2 text-sm text-accent font-bold">
-              <Mail className="w-4 h-4" />
-              <span>hello@opsiys.com</span>
+            <h4 className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-white">Office</h4>
+            <div className="space-y-3">
+              <p className="text-xs md:text-sm text-zinc-500 leading-relaxed font-mono uppercase tracking-tight">
+                Based in India.<br/>
+                Serving globally.
+              </p>
+              <div className="flex items-center gap-2 text-[10px] md:text-sm text-accent font-bold font-mono">
+                <Mail className="w-3 h-3 md:w-4 md:h-4" />
+                <span>hello@opsiys.com</span>
+              </div>
             </div>
           </div>
         </div>
