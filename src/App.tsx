@@ -58,7 +58,7 @@ const staggerContainer = {
 // --- Shared Components ---
 
 const Logo = () => (
-  <div className="flex items-center group cursor-pointer h-15">
+  <div className="flex items-center group cursor-pointer h-14">
     <img 
       src="/assets/opsiyslogo.png" 
       alt="OPSIYS" 
