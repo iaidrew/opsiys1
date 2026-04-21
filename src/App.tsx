@@ -68,7 +68,7 @@ const staggerContainer = {
 // --- Shared Components ---
 
 const Logo = () => (
-  <div className="flex items-center group cursor-pointer h-8">
+  <div className="flex items-center group cursor-pointer h-12">
     <img 
       src="/assets/opsiyslogo.png" 
       alt="OPSIYS" 
@@ -552,7 +552,7 @@ const Hero = () => {
   }, []);
 
   return (
-    <section className="pt-28 pb-12 md:pt-56 md:pb-40 px-4 md:px-6 overflow-hidden bg-[#FAFAFA] relative">
+    <section className="pt-24 pb-10 md:pt-56 md:pb-40 px-4 md:px-6 overflow-hidden bg-[#FAFAFA] relative">
       {/* Background Grid Pattern */}
       <div className="absolute inset-0 z-0 opacity-[0.05] pointer-events-none" 
         style={{ 
@@ -564,30 +564,30 @@ const Hero = () => {
       {/* Subtle Background Spotlight */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-gradient-to-b from-accent/10 to-transparent blur-3xl pointer-events-none" />
       
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center relative z-10 px-6 sm:px-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-24 items-center relative z-10 px-4 sm:px-10">
         <motion.div 
           initial="initial"
           animate="animate"
           variants={staggerContainer}
-          className="space-y-10 md:space-y-12 text-left"
+          className="space-y-8 md:space-y-12 text-left"
         >
           <motion.div variants={fadeIn} className="space-y-4 md:space-y-6">
             <div className="flex items-center gap-4">
-              <Badge variant="outline" className="rounded-full px-4 py-1 text-[10px] md:text-xs border-accent/20 text-accent bg-accent/5 backdrop-blur-sm">
+              <Badge variant="outline" className="rounded-full px-3 py-0.5 text-[9px] md:text-xs border-accent/20 text-accent bg-accent/5 backdrop-blur-sm">
                 Efficiency Redefined
               </Badge>
             </div>
             
             <h1 className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[0.95] uppercase">
               We build AI <br/>
-              <span className="relative inline-block min-w-[180px] xs:min-w-[220px] sm:min-w-[280px]">
+              <span className="relative inline-block min-w-[150px] xs:min-w-[200px] sm:min-w-[280px]">
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={index}
-                    initial={{ opacity: 0, y: 20 }}
+                    initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5, ease: "circOut" }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ duration: 0.4, ease: "circOut" }}
                     className="text-accent absolute left-0"
                   >
                     {words[index]}
@@ -600,19 +600,19 @@ const Hero = () => {
             </h1>
           </motion.div>
           
-          <motion.div variants={fadeIn} className="space-y-10">
-            <p className="text-base md:text-xl text-muted-foreground max-w-md leading-relaxed font-medium">
+          <motion.div variants={fadeIn} className="space-y-8 md:space-y-10">
+            <p className="text-sm md:text-xl text-muted-foreground max-w-md leading-relaxed font-medium">
               Automation, workflows, and scalable operations designed for high-performance teams. Clarity over complexity.
             </p>
             
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 md:gap-4">
               <a href="#contact" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto bg-black hover:bg-zinc-800 text-white rounded-none px-10 py-8 text-sm font-bold uppercase tracking-[0.2em] transition-all active:scale-95 shadow-2xl shadow-black/10">
+                <Button size="lg" className="w-full sm:w-auto bg-black hover:bg-zinc-800 text-white rounded-none px-8 py-7 md:px-10 md:py-8 text-xs md:text-sm font-bold uppercase tracking-[0.2em] transition-all active:scale-95 shadow-2xl shadow-black/10">
                   Book a Call <ArrowRight className="ml-2 w-4 h-4" />
                 </Button>
               </a>
               <a href="#systems" className="w-full sm:w-auto">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto rounded-none px-10 py-8 text-sm font-bold uppercase tracking-[0.2em] border-2 border-zinc-100 hover:border-black transition-all">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto rounded-none px-8 py-7 md:px-10 md:py-8 text-xs md:text-sm font-bold uppercase tracking-[0.2em] border-2 border-zinc-100 hover:border-black transition-all">
                   Explore stack
                 </Button>
               </a>
@@ -762,9 +762,9 @@ const Features = () => {
   ];
 
   return (
-    <section id="systems" className="py-16 md:py-32 px-6 sm:px-10 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto space-y-16 md:space-y-24">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
+    <section id="systems" className="py-12 md:py-32 px-6 sm:px-10 bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto space-y-10 md:space-y-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-end">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -772,10 +772,10 @@ const Features = () => {
             transition={{ duration: 0.6 }}
             className="max-w-xl"
           >
-            <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
+            <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-4 md:mb-6 flex items-center gap-3">
               <span className="w-8 h-px bg-zinc-200" /> Core Systems
             </h2>
-            <p className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter leading-tight uppercase">
+            <p className="text-3xl xs:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter leading-tight uppercase">
               Structured automation <br className="hidden sm:block" /> for modern business.
             </p>
           </motion.div>
@@ -803,7 +803,7 @@ const Features = () => {
               key={idx}
               variants={fadeIn}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              className="p-8 border border-zinc-100 group hover:border-black transition-all duration-500 space-y-8 bg-white relative overflow-hidden"
+              className="p-6 md:p-8 border border-zinc-100 group hover:border-black transition-all duration-500 space-y-6 md:space-y-8 bg-white relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-1 h-0 bg-accent group-hover:h-full transition-all duration-500" />
               <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 flex items-center justify-center rounded-none transition-all duration-300 group-hover:bg-black group-hover:text-white group-hover:border-black">
@@ -852,53 +852,53 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section id="process" className="pt-16 pb-12 md:py-32 px-6 sm:px-10 bg-[#0B0B0B] text-white overflow-hidden relative">
+    <section id="process" className="py-12 md:py-32 px-6 sm:px-10 bg-[#0B0B0B] text-white overflow-hidden relative">
       {/* Subtle Pattern Background */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       
-      <div className="max-w-7xl mx-auto space-y-20 relative z-10">
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
+      <div className="max-w-7xl mx-auto space-y-12 md:space-y-20 relative z-10">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 md:gap-10">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="space-y-6"
+            className="space-y-4 md:space-y-6"
           >
             <h2 className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] flex items-center gap-4">
-               <span className="w-12 h-px bg-white/10" /> The Blueprint
+               <span className="w-8 md:w-12 h-px bg-white/10" /> The Blueprint
             </h2>
-            <p className="text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tighter leading-tight uppercase">How we turn <br/> chaos into <span className="text-accent underline decoration-white/10 underline-offset-8">systems</span>.</p>
+            <p className="text-3xl xs:text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tighter leading-tight uppercase">How we turn <br/> chaos into <span className="text-accent underline decoration-white/10 underline-offset-8">systems</span>.</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="max-w-sm border-l border-white/10 pl-8 pb-2"
+            className="max-w-sm border-l border-white/10 pl-6 md:pl-8 pb-2"
           >
-            <p className="text-zinc-400 text-base leading-relaxed font-medium">
+            <p className="text-zinc-400 text-sm md:text-base leading-relaxed font-medium">
               Our process is rigorous and outcome-driven. We don't just 'do AI'—we build operational infrastructure.
             </p>
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 relative">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-12 relative">
           <div className="hidden lg:block absolute top-[2.25rem] left-0 right-0 h-px bg-white/5 -z-0" />
           
           {steps.map((step, idx) => (
             <motion.div 
               key={idx}
-              className="space-y-8 relative z-10 group"
+              className="space-y-6 md:space-y-8 relative z-10 group"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.15, duration: 0.6 }}
             >
-              <div className="w-12 h-12 bg-white text-black flex items-center justify-center font-bold text-sm rounded-none group-hover:bg-accent group-hover:text-white transition-all duration-500 transform group-hover:-rotate-12">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-white text-black flex items-center justify-center font-bold text-xs md:text-sm rounded-none group-hover:bg-accent group-hover:text-white transition-all duration-500 transform group-hover:-rotate-12">
                 {step.num}
               </div>
-              <div className="space-y-4">
-                <h3 className="text-2xl font-extrabold uppercase tracking-tight group-hover:translate-x-2 transition-transform duration-500">{step.title}</h3>
-                <p className="text-zinc-500 text-sm leading-relaxed font-medium">
+              <div className="space-y-3 md:space-y-4">
+                <h3 className="text-xl md:text-2xl font-extrabold uppercase tracking-tight group-hover:translate-x-2 transition-transform duration-500">{step.title}</h3>
+                <p className="text-zinc-500 text-[13px] md:text-sm leading-relaxed font-medium">
                   {step.desc}
                 </p>
               </div>
@@ -971,29 +971,29 @@ const ToolDiscovery = () => {
   const categories = ["All", "Proprietary", "Intelligence", "Operations", "Sales", "Creative", "Data", "Development"];
 
   return (
-    <section id="discovery" className="pt-10 pb-16 md:py-32 px-6 sm:px-10 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <section id="discovery" className="py-12 md:py-32 px-6 sm:px-10 bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto space-y-8 md:space-y-12">
         <div className="text-center space-y-4">
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight uppercase">AI Tool Discovery</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
+          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-xs md:text-base font-medium">
             A curated repository of state-of-the-art AI systems and proprietary workflows.
           </p>
         </div>
 
-        <div className="space-y-8 md:space-y-12">
+        <div className="space-y-6 md:space-y-12">
           <div className="flex flex-col gap-4 md:flex-row md:items-center justify-between items-center bg-zinc-50 p-4 md:p-6 rounded-none border border-zinc-100">
             <div className="relative w-full max-w-xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-3.5 h-3.5" />
               <Input 
                 placeholder="Search tools..." 
-                className="pl-12 py-5 md:py-7 rounded-none border-zinc-200 focus:border-black focus-visible:ring-0 transition-all bg-white"
+                className="pl-10 py-5 md:pl-12 md:py-7 rounded-none border-zinc-200 focus:border-black focus-visible:ring-0 transition-all bg-white text-sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             
             <Tabs defaultValue="all" className="w-full lg:w-auto overflow-x-auto" onValueChange={setActiveTab}>
-              <ScrollArea className="w-full whitespace-nowrap pb-2">
+              <ScrollArea className="w-full whitespace-nowrap pb-1">
                 <TabsList className="bg-transparent rounded-none p-0 inline-flex border-b border-zinc-200 w-full lg:w-auto">
                   {categories.map(cat => (
                     <TabsTrigger 
@@ -1186,31 +1186,31 @@ const Contact = () => {
   const urgencyLevels = ["High (Immediate)", "Medium (1-4 weeks)", "Low (Planning)"];
 
   return (
-    <section id="contact" className="py-16 md:py-32 px-6 bg-white relative overflow-hidden">
+    <section id="contact" className="py-12 md:py-32 px-6 bg-white relative overflow-hidden">
       {/* Background Decor */}
       <div className="absolute top-0 right-0 w-1/3 h-full bg-zinc-50/50 -z-0" />
       
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-20 relative z-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-20 relative z-10">
         <motion.div 
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
-          className="lg:col-span-5 space-y-12"
+          className="lg:col-span-5 space-y-10 md:space-y-12"
         >
-          <div className="space-y-6">
+          <div className="space-y-5 md:space-y-6">
             <Badge className="bg-accent/10 text-accent hover:bg-accent/20 border-none px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest">
               Available for Q4 Bookings
             </Badge>
-            <h2 className="text-5xl md:text-6xl font-extrabold tracking-tighter leading-[0.9] uppercase">
+            <h2 className="text-4xl md:text-6xl font-extrabold tracking-tighter leading-[0.9] uppercase">
               Book Your <br/><span className="text-accent">Free Call</span>
             </h2>
-            <p className="text-zinc-500 text-lg md:text-xl font-medium leading-relaxed max-w-md">
+            <p className="text-zinc-500 text-base md:text-xl font-medium leading-relaxed max-w-md">
               Secure your spot for a free discovery session. We'll show you exactly how AI can automate your manual work and save you time.
             </p>
           </div>
           
-          <div className="grid grid-cols-1 gap-6">
+          <div className="grid grid-cols-1 gap-5 md:gap-6">
             {[
               { title: "Discovery Session", desc: "A deep dive into your manual processes and where you can save time." },
               { title: "Savings Analysis", desc: "A clear report on how much money and time AI will save you." },
@@ -1222,14 +1222,14 @@ const Contact = () => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 + idx * 0.1 }}
                 viewport={{ once: true }}
-                className="flex gap-6 group"
+                className="flex gap-5 md:gap-6 group"
               >
-                <div className="w-12 h-12 shrink-0 bg-black text-white flex items-center justify-center font-bold text-lg rounded-xl">
+                <div className="w-10 h-10 md:w-12 md:h-12 shrink-0 bg-black text-white flex items-center justify-center font-bold text-base md:text-lg rounded-xl">
                   0{idx + 1}
                 </div>
                 <div>
-                  <h4 className="font-extrabold uppercase text-sm tracking-tight mb-1">{item.title}</h4>
-                  <p className="text-zinc-500 text-sm leading-relaxed">{item.desc}</p>
+                  <h4 className="font-extrabold uppercase text-xs md:text-sm tracking-tight mb-1">{item.title}</h4>
+                  <p className="text-zinc-500 text-xs md:text-sm leading-relaxed">{item.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -1239,17 +1239,17 @@ const Contact = () => {
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.7 }}
-            className="pt-10 border-t border-zinc-100 flex items-center gap-6"
+            className="pt-8 md:pt-10 border-t border-zinc-100 flex items-center gap-4 md:gap-6"
           >
-            <div className="flex -space-x-3">
+            <div className="flex -space-x-2 md:-space-x-3">
               {[1, 2, 3].map(i => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white overflow-hidden bg-zinc-100">
+                <div key={i} className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-white overflow-hidden bg-zinc-100">
                   <img src={`https://picsum.photos/seed/face${i}/100/100`} alt="Client" referrerPolicy="no-referrer" />
                 </div>
               ))}
             </div>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">
-              Trusted by <span className="text-black">12+ Enterprise Teams</span> this month
+            <p className="text-[9px] md:text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+              Trusted by <span className="text-black">12+ Enterprise Teams</span>
             </p>
           </motion.div>
         </motion.div>
