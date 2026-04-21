@@ -201,7 +201,7 @@ const Navbar = ({ user, handleSignIn, logout, profile }: { user: any, handleSign
                 size="sm" 
                 className="rounded-full px-6 h-8 sm:h-9 transition-all duration-500 font-bold text-[11px] uppercase tracking-wider bg-white text-black hover:bg-zinc-200"
               >
-                Book a Call
+                Start
               </Button>
             </a>
             
@@ -291,6 +291,17 @@ const AuthPortal = () => {
   const [profile, setProfile] = React.useState<any>(null);
   const [leads, setLeads] = React.useState<any[]>([]);
   const [isSaving, setIsSaving] = React.useState(false);
+  const [showWelcome, setShowWelcome] = React.useState(false);
+
+  React.useEffect(() => {
+    // Show welcome modal after 2.5 seconds if user is not logged in
+    const timer = setTimeout(() => {
+      onAuthStateChanged(auth, (u) => {
+        if (!u) setShowWelcome(true);
+      });
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, []);
 
   React.useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -490,6 +501,71 @@ const AuthPortal = () => {
                   Close Panel
                 </Button>
               </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Welcome Login Modal */}
+      <AnimatePresence>
+        {showWelcome && !user && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowWelcome(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 40 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 40 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              className="bg-white max-w-lg w-full relative z-[210] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] border border-zinc-100 overflow-hidden rounded-[3rem] p-10 md:p-16 text-center"
+            >
+              <button 
+                onClick={() => setShowWelcome(false)} 
+                className="absolute top-8 right-8 text-zinc-300 hover:text-black transition-colors"
+                aria-label="Close"
+              >
+                <X size={28} />
+              </button>
+
+              <div className="space-y-10">
+                <div className="w-20 h-20 bg-black text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
+                  <Bot size={40} />
+                </div>
+                
+                <div className="space-y-4">
+                  <h2 className="text-4xl md:text-5xl font-black uppercase tracking-tighter leading-tight">
+                    Partner <br/> <span className="text-zinc-300">Access</span>
+                  </h2>
+                  <p className="text-zinc-500 font-medium text-sm md:text-lg leading-relaxed max-w-xs mx-auto">
+                    Sign in to access your project dashboard and proprietary resource libraries.
+                  </p>
+                </div>
+
+                <div className="space-y-4">
+                  <Button 
+                    onClick={async () => {
+                      await handleSignIn();
+                      setShowWelcome(false);
+                    }}
+                    className="w-full h-16 rounded-full bg-black text-white font-black text-sm uppercase tracking-widest hover:bg-zinc-800 transition-all shadow-xl"
+                  >
+                    Continue with Google
+                  </Button>
+                  <button 
+                    onClick={() => setShowWelcome(false)}
+                    className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-300 hover:text-zinc-500 transition-colors"
+                  >
+                    I'll Explore First
+                  </button>
+                </div>
+              </div>
+
+              <div className="absolute bottom-0 inset-x-0 h-2 bg-gradient-to-r from-transparent via-zinc-100 to-transparent" />
             </motion.div>
           </div>
         )}
@@ -825,7 +901,7 @@ const HowItWorks = () => {
             <h2 className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] flex items-center gap-4">
                <span className="w-8 md:w-12 h-px bg-white/10" /> The Blueprint
             </h2>
-            <p className="text-3xl xs:text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tighter leading-tight uppercase">How we turn <br/> chaos into <span className="text-accent underline decoration-white/10 underline-offset-8">systems</span>.</p>
+            <p className="text-3xl xs:text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tighter leading-tight uppercase">How we turn <br/> chaos into <span className="text-accent underline decoration-white/10 underline-offset-8">clarity</span>.</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
@@ -972,42 +1048,43 @@ const ToolDiscovery = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, margin: "200px" }}
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 relative min-h-[300px]"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 relative min-h-[500px]"
           >
             {!user && (
-              <div className="absolute inset-x-0 top-0 bottom-auto z-20 bg-white/30 backdrop-blur-[12px] flex items-start justify-center p-6 md:p-12 rounded-none overflow-hidden h-[400px]">
+              <div className="absolute inset-x-0 top-0 bottom-0 z-20 bg-white/40 backdrop-blur-[24px] flex items-start justify-center p-6 md:p-12 overflow-hidden pointer-events-none">
                 <motion.div 
-                  initial={{ opacity: 0, scale: 0.9, y: -20 }}
-                  whileInView={{ opacity: 1, scale: 1, y: 0 }}
-                  viewport={{ once: true, margin: "400px" }}
-                  transition={{ duration: 0.5, ease: "circOut" }}
-                  className="bg-white p-6 md:p-12 shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] border border-black/5 text-center max-w-[320px] md:max-w-md space-y-6 md:space-y-8 relative mt-10"
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.8, ease: "circOut" }}
+                  className="bg-white p-10 md:p-20 border border-zinc-100 shadow-[0_100px_150px_-50px_rgba(0,0,0,0.2)] text-center max-w-[340px] md:max-w-xl space-y-10 relative mt-16 md:mt-32 pointer-events-auto rounded-[3rem]"
                 >
-                  <div className="w-14 h-14 md:w-20 md:h-20 bg-black text-white rounded-full flex items-center justify-center mx-auto shadow-2xl">
-                    <LogIn size={24} className="md:hidden" />
-                    <LogIn size={32} className="hidden md:block" />
+                  <div className="w-16 h-16 md:w-24 md:h-24 bg-black text-white rounded-full flex items-center justify-center mx-auto shadow-2xl transition-transform hover:scale-110 duration-500">
+                    <LogIn size={40} />
                   </div>
-                  <div className="space-y-3">
-                    <h3 className="font-extrabold text-xl md:text-3xl tracking-tighter uppercase leading-tight text-black">Login to Unlock Access</h3>
-                    <p className="text-[10px] md:text-base text-muted-foreground leading-relaxed font-medium">
-                      Unlock proprietary codebases, logic roadmaps, and the full capability of our AI automation tools.
+                  <div className="space-y-4">
+                    <h3 className="font-black text-3xl md:text-6xl tracking-tighter uppercase leading-[0.8] text-black">
+                      Log In <br/><span className="text-zinc-200">First</span>
+                    </h3>
+                    <p className="text-[11px] md:text-lg text-zinc-400 leading-relaxed font-medium max-w-[280px] md:max-w-md mx-auto">
+                      Sign in to explore our collection of AI tools designed to help you work smarter, not harder.
                     </p>
                   </div>
-                  <Button 
-                    onClick={async () => {
-                      try {
-                        await signInWithGoogle();
-                      } catch (error: any) {
-                        if (error.code === 'auth/popup-closed-by-user') return;
-                        console.error(error);
-                      }
-                    }} 
-                    className="w-full bg-black hover:bg-zinc-800 text-white rounded-none py-6 md:py-9 font-bold text-sm md:text-lg transition-all shadow-lg active:scale-95 uppercase tracking-widest"
-                  >
-                    Connect with Google
-                  </Button>
-                  <div className="pt-2">
-                    <p className="text-[9px] font-bold text-zinc-300 uppercase tracking-[0.3em]">Agency Only Infrastructure</p>
+                  <div className="pt-4 flex flex-col items-center gap-6">
+                    <Button 
+                      onClick={async () => {
+                        try {
+                          await signInWithGoogle();
+                        } catch (error: any) {
+                          if (error.code === 'auth/popup-closed-by-user') return;
+                          console.error("Auth Error:", error);
+                        }
+                      }}
+                      className="w-full h-16 md:h-20 rounded-full bg-black text-white font-black text-xs md:text-sm uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl active:scale-95"
+                    >
+                      Connect with Google
+                    </Button>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-300">Ready to boost your workflow?</p>
                   </div>
                 </motion.div>
               </div>
