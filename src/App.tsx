@@ -1,5 +1,14 @@
 import * as React from "react";
 import { 
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Link,
+  useLocation,
+  useNavigate
+} from "react-router-dom";
+import AboutPage from "./pages/about.tsx";
+import { 
   Search, 
   ArrowRight, 
   Bot, 
@@ -18,7 +27,8 @@ import {
   Github,
   Linkedin,
   LogIn,
-  LogOut
+  LogOut,
+  Info
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -63,7 +73,9 @@ const Logo = () => (
       src="/assets/opsiyslogo.png" 
       alt="OPSIYS" 
       className="h-full w-auto block transition-opacity hover:opacity-80" 
-      
+      onError={(e) => {
+        (e.target as HTMLImageElement).src = 'https://picsum.photos/seed/opsiys/200/50?text=OPSIYS';
+      }}
     />
   </div>
 );
@@ -71,6 +83,8 @@ const Logo = () => (
 const Navbar = () => {
   const [isOpen, setIsOpen] = React.useState(false);
   const [scrolled, setScrolled] = React.useState(false);
+  const location = useLocation();
+  const isAboutPage = location.pathname === "/about";
 
   React.useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
@@ -78,45 +92,67 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const navItems = isAboutPage 
+    ? [{ name: "Home", href: "/" }] 
+    : [
+        { name: "Systems", href: "#systems" },
+        { name: "Process", href: "#process" },
+        { name: "Discovery", href: "#discovery" },
+        { name: "About", href: "/about" }
+      ];
+
   return (
     <>
       {/* Floating Pill Navigation */}
-      <div className="fixed top-4 md:top-6 left-0 right-0 z-50 px-4 md:px-6 flex justify-center pointer-events-none">
+      <div className="fixed top-4 md:top-6 left-0 right-0 z-[60] px-4 md:px-6 flex justify-center pointer-events-none">
         <motion.nav 
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8, ease: "circOut" }}
           className={cn(
-            "pointer-events-auto flex items-center justify-between gap-4 md:gap-8 px-2 md:px-3 py-1.5 md:py-2 rounded-full border transition-all duration-700 max-w-[95vw] sm:max-w-none group",
-            scrolled 
+            "pointer-events-auto flex items-center justify-between gap-4 md:gap-8 px-2 md:px-3 py-1.5 md:py-2 rounded-full border transition-all duration-700 max-w-[95vw] sm:max-w-none group shadow-2xl",
+            scrolled || isAboutPage
               ? "bg-black/95 backdrop-blur-2xl border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.3)] ring-1 ring-white/5" 
               : "bg-[#0B0B0B]/90 backdrop-blur-md border-white/5 shadow-[0_10px_30px_rgba(0,0,0,0.1)]"
           )}
         >
           {/* Logo Section */}
-          <div className="pl-3 pr-1 transition-all duration-500">
+          <Link to="/" className="pl-3 pr-1 transition-all duration-500">
             <Logo />
-          </div>
+          </Link>
 
           {/* Desktop Links */}
           <div className="hidden md:flex items-center gap-1">
-            {["Systems", "Process", "Discovery"].map((item) => (
-              <a 
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                className={cn(
-                  "px-4 py-2 text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full",
-                  "text-zinc-400 hover:text-white hover:bg-white/10"
-                )}
-              >
-                {item}
-              </a>
+            {navItems.map((item) => (
+              item.href.startsWith("/") ? (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className={cn(
+                    "px-4 py-2 text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full",
+                    "text-zinc-400 hover:text-white hover:bg-white/10"
+                  )}
+                >
+                  {item.name}
+                </Link>
+              ) : (
+                <a 
+                  key={item.name}
+                  href={item.href}
+                  className={cn(
+                    "px-4 py-2 text-[12px] font-bold uppercase tracking-widest transition-all duration-300 rounded-full",
+                    "text-zinc-400 hover:text-white hover:bg-white/10"
+                  )}
+                >
+                  {item.name}
+                </a>
+              )
             ))}
           </div>
 
           {/* CTA / Mobile Toggle */}
           <div className="flex items-center gap-1.5 md:gap-2 pr-1.5">
-            <a href="#contact" className="hidden sm:block">
+            <a href="/#contact" className={cn("hidden sm:block transition-all")}>
               <Button 
                 size="sm" 
                 className={cn(
@@ -157,25 +193,42 @@ const Navbar = () => {
               <X size={24} />
             </button>
             <div className="flex flex-col gap-8">
-              {["Systems", "Process", "Discovery"].map((item, idx) => (
-                <motion.a 
-                  key={item}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  href={`#${item.toLowerCase()}`}
-                  onClick={() => setIsOpen(false)}
-                  className="text-4xl font-extrabold text-white tracking-tighter hover:text-accent transition-colors"
-                >
-                  {item}
-                </motion.a>
+              {navItems.map((item, idx) => (
+                item.href.startsWith("/") ? (
+                  <motion.div
+                    key={item.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                  >
+                    <Link 
+                      to={item.href}
+                      onClick={() => setIsOpen(false)}
+                      className="text-4xl font-extrabold text-white tracking-tighter hover:text-accent transition-colors block"
+                    >
+                      {item.name}
+                    </Link>
+                  </motion.div>
+                ) : (
+                  <motion.a 
+                    key={item.name}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    href={item.href}
+                    onClick={() => setIsOpen(false)}
+                    className="text-4xl font-extrabold text-white tracking-tighter hover:text-accent transition-colors"
+                  >
+                    {item.name}
+                  </motion.a>
+                )
               ))}
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <a href="#contact" onClick={() => setIsOpen(false)}>
+                <a href="/#contact" onClick={() => setIsOpen(false)}>
                   <Button className="w-full bg-white text-black hover:bg-accent hover:text-white rounded-none py-8 text-xl font-bold">
                     Book a Call
                   </Button>
@@ -523,18 +576,21 @@ const Hero = () => {
       {/* Subtle Background Spotlight */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-full bg-gradient-to-b from-accent/10 to-transparent blur-3xl pointer-events-none" />
       
-      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center relative z-10">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center relative z-10 px-6 sm:px-10">
         <motion.div 
           initial="initial"
           animate="animate"
           variants={staggerContainer}
-          className="space-y-6 md:space-y-8"
+          className="space-y-10 md:space-y-12 text-left"
         >
-          <motion.div variants={fadeIn} className="space-y-3 md:space-y-4">
-            <Badge variant="outline" className="rounded-full px-4 py-1 text-[10px] md:text-xs border-accent/20 text-accent bg-accent/5 backdrop-blur-sm">
-              Efficiency Redefined
-            </Badge>
-            <h1 className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[0.95]">
+          <motion.div variants={fadeIn} className="space-y-4 md:space-y-6">
+            <div className="flex items-center gap-4">
+              <Badge variant="outline" className="rounded-full px-4 py-1 text-[10px] md:text-xs border-accent/20 text-accent bg-accent/5 backdrop-blur-sm">
+                Efficiency Redefined
+              </Badge>
+            </div>
+            
+            <h1 className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold tracking-tight leading-[0.95] uppercase">
               We build AI <br/>
               <span className="relative inline-block min-w-[180px] xs:min-w-[220px] sm:min-w-[280px]">
                 <AnimatePresence mode="wait">
@@ -556,29 +612,31 @@ const Hero = () => {
             </h1>
           </motion.div>
           
-          <motion.p variants={fadeIn} className="text-lg md:text-xl text-muted-foreground max-w-lg leading-relaxed">
-            Automation, workflows, and scalable operations designed for high-performance teams. Clarity over complexity.
-          </motion.p>
-          
-          <motion.div variants={fadeIn} className="flex flex-wrap gap-3 md:gap-4">
-            <a href="#contact">
-              <Button size="lg" className="bg-black hover:bg-black/90 text-white rounded-none px-6 md:px-8 py-5 md:py-6 text-base md:text-lg font-semibold transform transition-transform active:scale-95">
-                Book a Call <ArrowRight className="ml-2 w-4 h-4 md:w-5 md:h-5" />
-              </Button>
-            </a>
-            <a href="#systems">
-              <Button variant="outline" size="lg" className="rounded-none px-6 md:px-8 py-5 md:py-6 text-base md:text-lg font-semibold border-2 border-black hover:bg-black hover:text-white transition-all duration-300">
-                Explore Systems
-              </Button>
-            </a>
+          <motion.div variants={fadeIn} className="space-y-10">
+            <p className="text-base md:text-xl text-muted-foreground max-w-md leading-relaxed font-medium">
+              Automation, workflows, and scalable operations designed for high-performance teams. Clarity over complexity.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+              <a href="#contact" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto bg-black hover:bg-zinc-800 text-white rounded-none px-10 py-8 text-sm font-bold uppercase tracking-[0.2em] transition-all active:scale-95 shadow-2xl shadow-black/10">
+                  Book a Call <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </a>
+              <a href="#systems" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto rounded-none px-10 py-8 text-sm font-bold uppercase tracking-[0.2em] border-2 border-zinc-100 hover:border-black transition-all">
+                  Explore stack
+                </Button>
+              </a>
+            </div>
           </motion.div>
         </motion.div>
 
         <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-          className="relative mt-8 lg:mt-0 max-w-xl mx-auto lg:max-w-none w-full"
+          initial={{ opacity: 0, scale: 0.95, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
+          className="relative lg:mt-0 w-full"
         >
           <motion.div 
             animate={{ 
@@ -716,42 +774,62 @@ const Features = () => {
   ];
 
   return (
-    <section id="systems" className="py-24 px-6 bg-white overflow-hidden">
-      <div className="max-w-7xl mx-auto space-y-16">
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="max-w-xl"
-        >
-          <h2 className="text-xs font-bold text-accent uppercase tracking-[0.2em] mb-4">Core Systems</h2>
-          <p className="text-4xl font-extrabold tracking-tight">Structured automation for modern business.</p>
-        </motion.div>
+    <section id="systems" className="py-24 sm:py-32 px-6 sm:px-10 bg-white overflow-hidden">
+      <div className="max-w-7xl mx-auto space-y-16 md:space-y-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-end">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="max-w-xl"
+          >
+            <h2 className="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.3em] mb-6 flex items-center gap-3">
+              <span className="w-8 h-px bg-zinc-200" /> Core Systems
+            </h2>
+            <p className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tighter leading-tight uppercase">
+              Structured automation <br className="hidden sm:block" /> for modern business.
+            </p>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="hidden lg:block pb-2"
+          >
+            <p className="text-zinc-500 text-base leading-relaxed border-l-2 border-zinc-100 pl-6 max-w-md">
+              We build specialized engines that handle the heavy lifting, allowing your core talent to focus on innovation and growth.
+            </p>
+          </motion.div>
+        </div>
 
         <motion.div 
           variants={staggerContainer}
           initial="initial"
           whileInView="animate"
-          viewport={{ once: true, margin: "-100px" }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8"
+          viewport={{ once: true, margin: "-50px" }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8"
         >
           {systems.map((item, idx) => (
             <motion.div 
               key={idx}
               variants={fadeIn}
               whileHover={{ y: -8, transition: { duration: 0.2 } }}
-              className="p-8 border border-border group hover:border-black transition-all duration-500 space-y-6 bg-white relative overflow-hidden"
+              className="p-8 border border-zinc-100 group hover:border-black transition-all duration-500 space-y-8 bg-white relative overflow-hidden"
             >
               <div className="absolute top-0 left-0 w-1 h-0 bg-accent group-hover:h-full transition-all duration-500" />
-              <div className="w-12 h-12 bg-muted flex items-center justify-center rounded-sm transition-all duration-300 group-hover:bg-accent group-hover:text-white">
+              <div className="w-14 h-14 bg-zinc-50 border border-zinc-100 flex items-center justify-center rounded-none transition-all duration-300 group-hover:bg-black group-hover:text-white group-hover:border-black">
                 {item.icon}
               </div>
-              <div className="space-y-3">
-                <h3 className="text-xl font-bold">{item.title}</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm">
+              <div className="space-y-4">
+                <h3 className="text-2xl font-extrabold tracking-tight uppercase group-hover:text-accent transition-colors">{item.title}</h3>
+                <p className="text-zinc-500 leading-relaxed text-sm font-medium">
                   {item.desc}
                 </p>
+              </div>
+              <div className="pt-4 border-t border-zinc-50 flex justify-between items-center opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-500">
+                <span className="text-[10px] font-bold uppercase tracking-widest">Active Logic</span>
+                <ArrowRight size={14} className="text-accent" />
               </div>
             </motion.div>
           ))}
@@ -786,51 +864,53 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section id="process" className="py-24 px-6 bg-[#0B0B0B] text-white overflow-hidden relative">
+    <section id="process" className="py-24 sm:py-32 px-6 sm:px-10 bg-[#0B0B0B] text-white overflow-hidden relative">
       {/* Subtle Pattern Background */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '40px 40px' }} />
       
       <div className="max-w-7xl mx-auto space-y-20 relative z-10">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10">
           <motion.div 
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="space-y-4"
+            className="space-y-6"
           >
-            <h2 className="text-xs font-bold text-accent uppercase tracking-[0.2em]">The Blueprint</h2>
-            <p className="text-4xl md:text-5xl font-extrabold tracking-tight">How we turn chaos into systems.</p>
+            <h2 className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] flex items-center gap-4">
+               <span className="w-12 h-px bg-white/10" /> The Blueprint
+            </h2>
+            <p className="text-4xl md:text-5xl lg:text-7xl font-extrabold tracking-tighter leading-tight uppercase">How we turn <br/> chaos into <span className="text-accent underline decoration-white/10 underline-offset-8">systems</span>.</p>
           </motion.div>
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="max-w-sm"
+            className="max-w-sm border-l border-white/10 pl-8 pb-2"
           >
-            <p className="text-zinc-400 text-sm">
+            <p className="text-zinc-400 text-base leading-relaxed font-medium">
               Our process is rigorous and outcome-driven. We don't just 'do AI'—we build operational infrastructure.
             </p>
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
-          <div className="hidden md:block absolute top-10 left-0 right-0 h-px bg-zinc-800 -z-0" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 relative">
+          <div className="hidden lg:block absolute top-[2.25rem] left-0 right-0 h-px bg-white/5 -z-0" />
           
           {steps.map((step, idx) => (
             <motion.div 
               key={idx}
-              className="space-y-6 relative z-10 group flex flex-col items-center md:items-start text-center md:text-left"
+              className="space-y-8 relative z-10 group"
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: idx * 0.15, duration: 0.6 }}
             >
-              <div className="w-10 h-10 bg-accent flex items-center justify-center font-bold text-sm text-white rounded-none group-hover:scale-110 transition-transform duration-300">
+              <div className="w-12 h-12 bg-white text-black flex items-center justify-center font-bold text-sm rounded-none group-hover:bg-accent group-hover:text-white transition-all duration-500 transform group-hover:-rotate-12">
                 {step.num}
               </div>
-              <div className="space-y-3">
-                <h3 className="text-xl font-bold group-hover:text-accent transition-colors duration-300">{step.title}</h3>
-                <p className="text-zinc-400 text-sm leading-relaxed">
+              <div className="space-y-4">
+                <h3 className="text-2xl font-extrabold uppercase tracking-tight group-hover:translate-x-2 transition-transform duration-500">{step.title}</h3>
+                <p className="text-zinc-500 text-sm leading-relaxed font-medium">
                   {step.desc}
                 </p>
               </div>
@@ -903,35 +983,35 @@ const ToolDiscovery = () => {
   const categories = ["All", "Proprietary", "Intelligence", "Operations", "Sales", "Creative", "Data", "Development"];
 
   return (
-    <section id="discovery" className="py-24 px-6 bg-white overflow-hidden">
+    <section id="discovery" className="py-24 sm:py-32 px-6 sm:px-10 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="text-center space-y-4">
-          <h2 className="text-4xl font-extrabold tracking-tight">AI Tool Discovery</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight uppercase">AI Tool Discovery</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-sm md:text-base">
             A curated repository of state-of-the-art AI systems. From proprietary agency workflows to global foundation models, we help you discover and integrate the right logic into your stack.
           </p>
         </div>
 
-        <div className="space-y-8">
-          <div className="flex flex-col gap-6 items-center">
-            <div className="relative w-full max-w-3xl">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+        <div className="space-y-12">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center justify-between items-center bg-zinc-50 p-4 md:p-6 rounded-none border border-zinc-100">
+            <div className="relative w-full max-w-xl">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
               <Input 
                 placeholder="Search by tool name, use case, or stack category..." 
-                className="pl-12 py-7 rounded-none border-2 border-zinc-100 focus-visible:ring-0 focus-visible:border-black transition-all bg-zinc-50/50"
+                className="pl-12 py-7 rounded-none border-zinc-200 focus:border-black focus-visible:ring-0 transition-all bg-white"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             
-            <Tabs defaultValue="all" className="w-full overflow-x-auto" onValueChange={setActiveTab}>
-              <ScrollArea className="w-full whitespace-nowrap pb-4">
-                <TabsList className="bg-transparent rounded-none p-0 inline-flex border-b border-zinc-100 w-full justify-start md:justify-center">
+            <Tabs defaultValue="all" className="w-full lg:w-auto overflow-x-auto" onValueChange={setActiveTab}>
+              <ScrollArea className="w-full whitespace-nowrap pb-2">
+                <TabsList className="bg-transparent rounded-none p-0 inline-flex border-b border-zinc-200 w-full lg:w-auto">
                   {categories.map(cat => (
                     <TabsTrigger 
                       key={cat} 
                       value={cat.toLowerCase()} 
-                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:shadow-none px-6 py-4 font-bold uppercase tracking-widest text-[10px]"
+                      className="rounded-none border-b-2 border-transparent data-[state=active]:border-black data-[state=active]:bg-transparent data-[state=active]:text-black data-[state=active]:shadow-none px-6 py-4 font-bold uppercase tracking-widest text-[9px] text-zinc-400 hover:text-black transition-colors"
                     >
                       {cat}
                     </TabsTrigger>
@@ -946,7 +1026,7 @@ const ToolDiscovery = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true, margin: "-50px" }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 relative min-h-[400px]"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 relative min-h-[400px]"
           >
             {!user && (
               <div className="absolute inset-0 z-20 bg-white/40 backdrop-blur-[6px] flex items-center justify-center p-6 rounded-xl overflow-hidden border border-zinc-100">
@@ -1119,10 +1199,10 @@ const Contact = () => {
           className="lg:col-span-5 space-y-12"
         >
           <div className="space-y-6">
-            <Badge className="bg-accent/10 text-accent hover:bg-accent/20 border-none px-4 py-1.5 rounded-full text-[10px] uppercase font-black tracking-widest">
+            <Badge className="bg-accent/10 text-accent hover:bg-accent/20 border-none px-4 py-1.5 rounded-full text-[10px] uppercase font-bold tracking-widest">
               Available for Q4 Bookings
             </Badge>
-            <h2 className="text-5xl md:text-6xl font-black tracking-tighter leading-[0.9] uppercase">
+            <h2 className="text-5xl md:text-6xl font-extrabold tracking-tighter leading-[0.9] uppercase">
               Book Your <br/><span className="text-accent">Free Call</span>
             </h2>
             <p className="text-zinc-500 text-lg md:text-xl font-medium leading-relaxed max-w-md">
@@ -1148,7 +1228,7 @@ const Contact = () => {
                   0{idx + 1}
                 </div>
                 <div>
-                  <h4 className="font-black uppercase text-sm tracking-tight mb-1">{item.title}</h4>
+                  <h4 className="font-extrabold uppercase text-sm tracking-tight mb-1">{item.title}</h4>
                   <p className="text-zinc-500 text-sm leading-relaxed">{item.desc}</p>
                 </div>
               </motion.div>
@@ -1192,7 +1272,7 @@ const Contact = () => {
                   <CheckCircle2 size={48} />
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-3xl font-black uppercase tracking-tight">Transmission Received</h3>
+                  <h3 className="text-3xl font-extrabold uppercase tracking-tight">Transmission Received</h3>
                   <p className="text-zinc-500 max-w-sm mx-auto font-medium">{feedback}</p>
                 </div>
                 <Button 
@@ -1208,27 +1288,27 @@ const Contact = () => {
 
           <form className={cn("grid grid-cols-1 md:grid-cols-2 gap-8 transition-all duration-500", status === 'success' && "opacity-0 invisible scale-95")} onSubmit={handleSubmit}>
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Contact Name</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Contact Name</label>
               <Input id="name" value={formData.name} onChange={handleChange} required placeholder="Lead Contact" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
             </div>
             
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Business Email</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Business Email</label>
               <Input id="email" type="email" value={formData.email} onChange={handleChange} required placeholder="name@company.com" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Organization</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Organization</label>
               <Input id="company" value={formData.company} onChange={handleChange} required placeholder="Acme Systems" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Phone Number</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Phone Number</label>
               <Input id="phone" value={formData.phone} onChange={handleChange} required placeholder="+1 (555) 000-0000" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Project Category</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Project Category</label>
               <select 
                 id="projectType" 
                 value={formData.projectType} 
@@ -1240,7 +1320,7 @@ const Contact = () => {
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Target Urgency</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Target Urgency</label>
               <select 
                 id="urgency" 
                 value={formData.urgency} 
@@ -1252,12 +1332,12 @@ const Contact = () => {
             </div>
 
             <div className="md:col-span-2 space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">Investment Range ($)</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">Investment Range ($)</label>
               <Input id="budget" value={formData.budget} onChange={handleChange} required placeholder="e.g. 5,000 - 15,000" className="rounded-xl h-14 border-zinc-100 bg-zinc-50/30 focus-visible:ring-black/5 px-5 font-bold" />
             </div>
 
             <div className="md:col-span-2 space-y-2">
-              <label className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-400 ml-1">System Requirements</label>
+              <label className="text-[10px] font-bold uppercase tracking-[0.2em] text-zinc-400 ml-1">System Requirements</label>
               <textarea 
                 id="message"
                 value={formData.message}
@@ -1273,7 +1353,7 @@ const Contact = () => {
               <Button 
                 type="submit" 
                 disabled={status === 'loading'} 
-                className="w-full bg-black hover:bg-zinc-800 text-white rounded-full h-16 text-lg font-black uppercase tracking-widest shadow-2xl shadow-black/20 group overflow-hidden"
+                className="w-full bg-black hover:bg-zinc-800 text-white rounded-full h-16 text-lg font-extrabold uppercase tracking-widest shadow-2xl shadow-black/20 group overflow-hidden"
               >
                 {status === 'loading' ? (
                   <div className="flex items-center gap-3">
@@ -1349,22 +1429,35 @@ const Footer = () => {
   );
 };
 
+// --- HomePage Component ---
+
+const HomePage = () => {
+  return (
+    <main>
+      <Hero />
+      <Trust />
+      <Features />
+      <HowItWorks />
+      <ToolDiscovery />
+      <Contact />
+    </main>
+  );
+};
+
 // --- Main App ---
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-white font-sans selection:bg-accent selection:text-white relative">
-      <AuthPortal />
-      <Navbar />
-      <main>
-        <Hero />
-        <Trust />
-        <Features />
-        <HowItWorks />
-        <ToolDiscovery />
-        <Contact />
-      </main>
-      <Footer />
-    </div>
+    <Router>
+      <div className="min-h-screen bg-white font-sans selection:bg-accent selection:text-white relative">
+        <AuthPortal />
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+        </Routes>
+        <Footer />
+      </div>
+    </Router>
   );
 }

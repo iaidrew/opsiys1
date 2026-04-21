@@ -83,8 +83,15 @@ export const submitLead = async (leadData: {
 }) => {
   try {
     const leadsRef = collection(db, "leads");
+    
+    // Firestore does not accept 'undefined' values.
+    // We filter the object to remove any keys that have undefined values.
+    const submissionData = Object.fromEntries(
+      Object.entries(leadData).filter(([_, v]) => v !== undefined)
+    );
+
     await addDoc(leadsRef, {
-      ...leadData,
+      ...submissionData,
       createdAt: serverTimestamp(),
       status: "new",
     });
