@@ -59,7 +59,7 @@ const staggerContainer = {
 const Logo = () => (
   <div className="flex items-center group cursor-pointer h-12">
     <img 
-      src="public/assets/opsiyslogo.png" 
+      src="assets/opsiyslogo.png" 
       alt="OPSIYS"
       className="h-full w-auto block transition-opacity hover:opacity-80" 
     />
