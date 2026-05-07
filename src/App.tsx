@@ -68,7 +68,7 @@ const staggerContainer = {
 // --- Shared Components ---
 
 const Logo = () => (
-  <div className="flex items-center group cursor-pointer h-12">
+  <div className="flex items-center group cursor-pointer h-8">
     <img 
       src="/assets/opsiyslogo.png" 
       alt="OPSIYS" 
@@ -231,7 +231,7 @@ const Navbar = ({
                 size="sm" 
                 className="rounded-full px-6 h-8 sm:h-9 transition-all duration-500 font-bold text-[11px] uppercase tracking-wider bg-white text-black hover:bg-zinc-200"
               >
-                Book a Call
+                Start
               </Button>
             </a>
             
@@ -1014,35 +1014,33 @@ const ToolDiscovery = () => {
   }, []);
 
   const tools = [
-    // Agency Proprietary Systems
-    { name: "FlowGenie", cat: "Operations", use: "Autonomous revenue operations and workflow orchestration.", status: "Agency", highlight: true, url: "#" },
-    { name: "SalesBridge", cat: "Sales", use: "Lead-to-deal pipeline orchestration with AI nurturing.", status: "Agency", highlight: true, url: "#" },
-    { name: "DeepEnrich", cat: "Data", use: "Precision lead data enrichment utilizing neural scrapers.", status: "Agency", highlight: true, url: "#" },
+    // Intelligence
+    { name: "GPT-4o", cat: "Intelligence", use: "Multi-modal foundation model for complex reasoning and logic.", status: "Active", url: "https://chatgpt.com" },
+    { name: "Claude 3.5 Sonnet", cat: "Intelligence", use: "High-accuracy LLM focused on coding and creative writing.", status: "Active", url: "https://claude.ai" },
+    { name: "Gemini 1.5 Pro", cat: "Intelligence", use: "Powerful model with massive context window for large-scale analysis.", status: "Active", url: "https://gemini.google.com" },
     
-    // Large Language Models
-    { name: "GPT-4o", cat: "Intelligence", use: "Multi-modal foundation model for complex reasoning and logic.", status: "External", url: "https://chatgpt.com" },
-    { name: "Claude 3.5 Sonnet", cat: "Intelligence", use: "High-accuracy LLM focused on coding and creative writing.", status: "External", url: "https://claude.ai" },
-    { name: "Gemini 1.5 Pro", cat: "Intelligence", use: "Massive context window AI for enterprise-scale data analysis.", status: "External", url: "https://gemini.google.com" },
+    // Creative
+    { name: "Midjourney v6", cat: "Creative", use: "State-of-the-art photorealistic image generation workflows.", status: "Active", url: "https://midjourney.com" },
+    { name: "Jasper", cat: "Creative", use: "AI content platform for marketing and brand voice scaling.", status: "Active", url: "https://jasper.ai" },
+    { name: "Canva Magic", cat: "Creative", use: "AI-powered design suite for instant visual asset creation.", status: "Active", url: "https://canva.com" },
+    { name: "Copy.ai", cat: "Creative", use: "GTM (Go-to-Market) automation platform for high-growth teams.", status: "Active", url: "https://copy.ai" },
     
-    // Productivity & Creative
-    { name: "Midjourney v6", cat: "Creative", use: "State-of-the-art photorealistic image generation workflows.", status: "External", url: "https://midjourney.com" },
-    { name: "Jasper", cat: "Marketing", use: "Enterprise-grade content generation for scaling brand voice.", status: "External", url: "https://jasper.ai" },
-    { name: "Canva Magic", cat: "Creative", use: "AI-powered design suite for instant visual asset creation.", status: "External", url: "https://canva.com" },
-    { name: "Notion AI", cat: "Productivity", use: "Integrated workspace intelligence for docs and project management.", status: "External", url: "https://notion.ai" },
-    
-    // Agents & Automation
-    { name: "Zapier Central", cat: "Operations", use: "Autonomous agents that connect with 6000+ business apps.", status: "External", url: "https://zapier.com" },
-    { name: "AutoGPT", cat: "Agents", use: "Semi-autonomous agent framework for multi-step task completion.", status: "OpenSource", url: "https://github.com/Significant-Gravitas/AutoGPT" },
-    { name: "Make", cat: "Operations", use: "Advanced visual automation platform for complex integrations.", status: "External", url: "https://make.com" },
+    // Automation
+    { name: "FlowGenie", cat: "Automation", use: "Advanced workflow orchestration and revenue operations.", status: "Featured", highlight: true, url: "#" },
+    { name: "SalesBridge", cat: "Automation", use: "Lead-to-deal pipeline orchestration with AI nurturing.", status: "Featured", highlight: true, url: "#" },
+    { name: "Zapier Central", cat: "Automation", use: "Autonomous agents that connect with 6000+ business apps.", status: "Active", url: "https://zapier.com" },
+    { name: "Notion AI", cat: "Automation", use: "Integrated workspace intelligence for docs and projects.", status: "Active", url: "https://notion.ai" },
+    { name: "Make", cat: "Automation", use: "Advanced visual automation platform for complex integrations.", status: "Active", url: "https://make.com" },
+    { name: "AutoGPT", cat: "Automation", use: "Semi-autonomous agent framework for multi-step tasks.", status: "Active", url: "https://github.com/Significant-Gravitas/AutoGPT" },
     
     // Search & Data
-    { name: "Perplexity", cat: "Search", use: "Real-time answer engine with cited sources and logic checks.", status: "External", url: "https://perplexity.ai" },
-    { name: "Tableau AI", cat: "Data", use: "Predictive analytics and automated data storytelling for ROI.", status: "External", url: "https://tableau.com" },
-    { name: "Copy.ai", cat: "Marketing", use: "GTM (Go-to-Market) automation platform for sales teams.", status: "External", url: "https://copy.ai" },
+    { name: "Perplexity", cat: "Search", use: "Real-time answer engine with cited sources and logic checks.", status: "Active", url: "https://perplexity.ai" },
+    { name: "Tableau AI", cat: "Data", use: "Predictive analytics and automated data storytelling.", status: "Active", url: "https://tableau.com" },
+    { name: "DeepEnrich", cat: "Data", use: "Precision lead data enrichment utilizing neural scrapers.", status: "Featured", highlight: true, url: "#" },
     
-    // Coding & Development
-    { name: "Cursor", cat: "Development", use: "AI-native IDE that understands entire codebases natively.", status: "External", url: "https://cursor.com" },
-    { name: "GitHub Copilot", cat: "Development", use: "The world's most widely adopted AI pair programmer.", status: "External", url: "https://github.com/features/copilot" }
+    // Development
+    { name: "Cursor", cat: "Development", use: "AI-native IDE that understands entire codebases natively.", status: "Active", url: "https://cursor.com" },
+    { name: "GitHub Copilot", cat: "Development", use: "The world's most widely adopted AI pair programmer.", status: "Active", url: "https://github.com/features/copilot" }
   ];
 
   const [search, setSearch] = React.useState("");
@@ -1056,13 +1054,12 @@ const ToolDiscovery = () => {
     
     const matchesTab = 
       activeTab === "all" || 
-      tool.cat.toLowerCase() === activeTab.toLowerCase() ||
-      (activeTab === "proprietary" && tool.status === "Agency");
+      tool.cat.toLowerCase() === activeTab.toLowerCase();
       
     return matchesSearch && matchesTab;
   });
 
-  const categories = ["All", "Proprietary", "Intelligence", "Operations", "Sales", "Creative", "Data", "Development"];
+  const categories = ["All", "Intelligence", "Automation", "Creative", "Search", "Data", "Development"];
 
   return (
     <section id="discovery" className="py-12 md:py-32 px-6 sm:px-10 bg-white overflow-hidden">
@@ -1070,7 +1067,7 @@ const ToolDiscovery = () => {
         <div className="text-center space-y-4">
           <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight uppercase">AI Tool Discovery</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed text-xs md:text-base font-medium">
-            A curated repository of state-of-the-art AI systems and proprietary workflows.
+            Discover the best AI tools and workflows to simplify your work and boost productivity.
           </p>
         </div>
 
@@ -1086,7 +1083,11 @@ const ToolDiscovery = () => {
               />
             </div>
             
-            <Tabs defaultValue="all" className="w-full lg:w-auto overflow-x-auto" onValueChange={setActiveTab}>
+            <Tabs 
+              value={activeTab} 
+              onValueChange={setActiveTab} 
+              className="w-full lg:w-auto overflow-x-auto"
+            >
               <ScrollArea className="w-full whitespace-nowrap pb-1">
                 <TabsList className="bg-transparent rounded-none p-0 inline-flex border-b border-zinc-200 w-full lg:w-auto">
                   {categories.map(cat => (
@@ -1117,16 +1118,16 @@ const ToolDiscovery = () => {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.8, ease: "circOut" }}
-                  className="bg-white p-10 md:p-20 border border-zinc-100 shadow-[0_100px_150px_-50px_rgba(0,0,0,0.2)] text-center max-w-[340px] md:max-w-xl space-y-10 relative mt-16 md:mt-32 pointer-events-auto rounded-[3rem]"
+                  className="bg-white p-10 md:p-16 border border-zinc-100 shadow-[0_100px_150px_-50px_rgba(0,0,0,0.2)] text-center max-w-[340px] md:max-w-xl space-y-10 relative mt-16 md:mt-24 pointer-events-auto rounded-[3rem]"
                 >
                   <div className="w-16 h-16 md:w-24 md:h-24 bg-black text-white rounded-full flex items-center justify-center mx-auto shadow-2xl transition-transform hover:scale-110 duration-500">
-                    <LogIn size={40} />
+                    <LogIn size={32} />
                   </div>
                   <div className="space-y-4">
-                    <h3 className="font-black text-3xl md:text-6xl tracking-tighter uppercase leading-[0.8] text-black">
+                    <h3 className="font-black text-3xl md:text-5xl tracking-tighter uppercase leading-[0.8] text-black">
                       Log In <br/><span className="text-zinc-200">First</span>
                     </h3>
-                    <p className="text-[11px] md:text-lg text-zinc-400 leading-relaxed font-medium max-w-[280px] md:max-w-md mx-auto">
+                    <p className="text-[11px] md:text-base text-zinc-400 leading-relaxed font-medium max-w-[280px] md:max-w-md mx-auto">
                       Sign in to explore our collection of AI tools designed to help you work smarter, not harder.
                     </p>
                   </div>
@@ -1140,11 +1141,11 @@ const ToolDiscovery = () => {
                           console.error("Auth Error:", error);
                         }
                       }}
-                      className="w-full h-16 md:h-20 rounded-full bg-black text-white font-black text-xs md:text-sm uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl active:scale-95"
+                      className="w-full h-14 md:h-16 rounded-full bg-black text-white font-black text-[10px] md:text-xs uppercase tracking-[0.2em] hover:bg-zinc-800 transition-all shadow-xl active:scale-95"
                     >
                       Connect with Google
                     </Button>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-300">Ready to boost your workflow?</p>
+                    <p className="text-[9px] font-bold uppercase tracking-[0.4em] text-zinc-300">Ready to boost your workflow?</p>
                   </div>
                 </motion.div>
               </div>
@@ -1175,7 +1176,7 @@ const ToolDiscovery = () => {
                             </Badge>
                             <span className={cn(
                               "text-[9px] md:text-[10px] font-bold uppercase tracking-tight",
-                              tool.status === 'Agency' ? "text-accent" : "text-muted-foreground"
+                              tool.highlight ? "text-accent" : "text-muted-foreground"
                             )}>
                               {tool.status}
                             </span>
@@ -1188,7 +1189,7 @@ const ToolDiscovery = () => {
                           </div>
                         </div>
                         <div className="mt-6 md:mt-8 pt-4 border-t border-zinc-50 flex items-center justify-between text-[8px] md:text-[10px] font-bold uppercase tracking-widest group-hover:text-accent transition-colors">
-                          <span>{tool.status === 'Agency' ? 'Technical Specs' : 'Visit Platform'}</span>
+                          <span>{tool.status === 'Featured' ? 'See Details' : 'Visit Site'}</span>
                           <ArrowRight className="w-3 h-3 group-hover:translate-x-1 transition-transform" />
                         </div>
                       </CardContent>
