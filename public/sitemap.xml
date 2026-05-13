@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <url>
     <loc>https://opsiys.in/</loc>
     <priority>1.0</priority>
@@ -10,49 +11,4 @@
     <priority>0.8</priority>
   </url>
 
-  <url>
-    <loc>https://opsiys.in/services</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://opsiys.in/store</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://opsiys.in/contact</loc>
-    <priority>0.7</priority>
-  </url>
-</urlset><?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://opsiys.in/</loc>
-    <priority>1.0</priority>
-  </url>
-
-  <url>
-    <loc>https://opsiys.in/about</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://opsiys.in/#discovery</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://opsiys.in/#systems</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://opsiys.in/#process</loc>
-    <priority>0.8</priority>
-  </url>
-
-  <url>
-    <loc>https://opsiys.in/#contact</loc>
-    <priority>0.7</priority>
-  </url>
 </urlset>
